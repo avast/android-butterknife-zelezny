@@ -1,0 +1,33 @@
+<idea-plugin version="2">
+	<id>eu.inmite.android.plugin.butterknifezelezny</id>
+	<name>Android ButterKnife Zelezny</name>
+	<version>1.0</version>
+	<vendor email="carnero@inmite.eu" url="http://inmite.eu/">inmite</vendor>
+
+	<description><![CDATA[
+      Simple plugin for generating Butterknife injections from selected layout XML.
+      ]]></description>
+
+	<change-notes><![CDATA[
+      Everything
+      ]]></change-notes>
+
+	<idea-version since-build="123.72"/>
+
+	<actions>
+		<action id="AddInjectionsAction"
+			class="eu.inmite.android.plugin.butterknifezelezny.InjectAction"
+			text="Generate _Butterknife Injections"
+			icon="/eu/inmite/android/plugin/butterknifezelezny/icons/butterknife-zelezny.png"
+			description="Inserts Butterknife injections into currently opened source">
+
+			<keyboard-shortcut
+				keymap="$default"
+				first-keystroke="shift control B"/>
+			<add-to-group group-id="GenerateGroup"/>
+			<!-- <add-to-group group-id="ProjectViewPopupMenu" /> file pop-up -->
+		</action>
+	</actions>
+
+	<extensions defaultExtensionNs="com.intellij"/>
+</idea-plugin>
