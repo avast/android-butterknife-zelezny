@@ -1,39 +1,28 @@
-ButterKnifeZelezny
-===================
+# ButterKnifeZelezny
 
-simple plug-in for IntelliJ IDEA and Android Studio that allows one-click creation of ButterKnife view injections
+Simple plug-in for IntelliJ IDEA and Android Studio that allows one-click creation of ButterKnife view injections.
 
-INSTALLATION
-============
+## How to install
 
-- download android-butterknife-zelezny_java6.jar or android-butterknife-zelezny_java6.jar file from repository's root
-- IDEA/Android Studio → Preferences → Plugins → Install plugin from disk → select downloaded .jar file
+- in Android Studio: go to `Preferences → Plugins → Browse repositories` and search for `ButterKnife Zelezny`
 
-USAGE
-=====
+_or_
 
-- right click on usage of desired layout file (e.g. setContentView(R.layout.main))
-- select 'Generate'
-- select 'Generate Butterknife Injections'
+- [download it](http://plugins.jetbrains.com/plugin/7369) and install via `Preferences → Plugins → Install plugin from disk`
 
-You need to include Butterknife library [https://github.com/JakeWharton/butterknife] into your project in order to make this work.
 
-OTHER'S WORK
-============
+## How to use
+
+1) Right click on usage of desired layout file (e.g. setContentView(R.layout.main)), then `Generate` and `Generate ButterKnife Injections`
+
+ ![](img/generate.png)
+ 
+2) Pick injections you want, rename them to whatever you want. Also you have option to create ViewHolder for adapters.
+
+ ![](img/injections.png)
+
+You need to include [Butterknife library](https://github.com/JakeWharton/butterknife) into your project in order to make this work.
+
+## Other's work
 
 - IDEA code generator by Anatoly Korniltsev [https://github.com/kurganec/intellij-android-codegenerator/]
-
-LICENSE
-=======
-
-<pre>Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-you may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.</pre>
