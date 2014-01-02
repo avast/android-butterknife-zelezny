@@ -30,7 +30,7 @@ _or_
 
 ## Other's work
 
-- IDEA code generator by Anatoly Korniltsev [https://github.com/kurganec/intellij-android-codegenerator/]
+- [IDEA code generator](https://github.com/kurganec/intellij-android-codegenerator/) by Anatoly Korniltsev 
 
 ## Why 'Zelezny'?
 
