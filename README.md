@@ -26,3 +26,14 @@ You need to include [Butterknife library](https://github.com/JakeWharton/butterk
 ## Other's work
 
 - IDEA code generator by Anatoly Korniltsev [https://github.com/kurganec/intellij-android-codegenerator/]
+
+## How to build the code
+
+- follow [Getting Started with Plugin Development](http://confluence.jetbrains.com/display/IDEADEV/Getting+Started+with+Plugin+Development)
+- make sure you have Java 6 installed if you want to publish it in the plugin repository
+
+## Why 'Zelezny'?
+
+<img src="http://assets.espn.go.com/i/oly/summer08/afp/xml/en/biop/images/bio/15525.jpg" width="60"  align="right"/>
+
+[Jan Železný](http://en.wikipedia.org/wiki/Jan_%C5%BDelezn%C3%BD) is a famous Czech javelin thrower, Olympic champion and world record holder. With Zelezny's javelin, your butter knife will be much sharper!
