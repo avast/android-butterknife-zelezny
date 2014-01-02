@@ -1,6 +1,6 @@
 # ButterKnifeZelezny
 
-Simple plug-in for IntelliJ IDEA and Android Studio that allows one-click creation of ButterKnife view injections.
+Simple plug-in for Android Studio that allows one-click creation of [Butterknife](https://github.com/JakeWharton/butterknife) view injections.
 
 ## How to install
 
@@ -13,24 +13,24 @@ _or_
 
 ## How to use
 
-1) Right click on usage of desired layout file (e.g. setContentView(R.layout.main)), then `Generate` and `Generate ButterKnife Injections`
+1) Right click on usage of desired layout reference (e.g. R.layout.main in your Activity or Fragment), then `Generate` and `Generate ButterKnife Injections`
 
  ![](img/generate.png)
  
-2) Pick injections you want, rename them to whatever you want. Also you have option to create ViewHolder for adapters.
+2) Pick injections you want, you also have an option to create ViewHolder for adapters.
 
  ![](img/injections.png)
-
-You need to include [Butterknife library](https://github.com/JakeWharton/butterknife) into your project in order to make this work.
-
-## Other's work
-
-- IDEA code generator by Anatoly Korniltsev [https://github.com/kurganec/intellij-android-codegenerator/]
+ 
+3) Click `Confirm` and enjoy injections in your code with no work!
 
 ## How to build the code
 
 - follow [Getting Started with Plugin Development](http://confluence.jetbrains.com/display/IDEADEV/Getting+Started+with+Plugin+Development)
 - make sure you have Java 6 installed if you want to publish it in the plugin repository
+
+## Other's work
+
+- IDEA code generator by Anatoly Korniltsev [https://github.com/kurganec/intellij-android-codegenerator/]
 
 ## Why 'Zelezny'?
 
