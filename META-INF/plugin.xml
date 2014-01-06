@@ -1,7 +1,7 @@
 <idea-plugin version="2">
 	<id>eu.inmite.android.plugin.butterknifezelezny</id>
 	<name>Android ButterKnife Zelezny</name>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<vendor email="carnero@inmite.eu" url="http://inmite.eu/">inmite</vendor>
 
 	<description><![CDATA[
@@ -9,10 +9,25 @@
       ]]></description>
 
 	<change-notes><![CDATA[
-      Everything
+<html>
+
+  <b>1.0.1</b> (1/6/2014)
+  <ul>
+    <li>Fix for Java 6
+  </ul>
+
+  <b>1.0</b> (12/30/2013)
+  <ul>
+    <li>Initial release
+  </ul>
+</html>
       ]]></change-notes>
 
 	<idea-version since-build="123.72"/>
+
+	<!-- please see http://confluence.jetbrains.net/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+                   on how to target different products -->
+	<depends>com.intellij.modules.lang</depends>
 
 	<actions>
 		<action id="AddInjectionsAction"
