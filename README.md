@@ -4,7 +4,7 @@ Simple plug-in for Android Studio that allows one-click creation of [Butterknife
 
 ## How to install
 
-- in Android Studio: go to `Preferences → Plugins → Browse repositories` and search for `ButterKnife Zelezny`
+- in Android Studio: go to `Preferences → Plugins → Browse repositories` and search for `ButterKnifeZelezny`
 
 _or_
 
