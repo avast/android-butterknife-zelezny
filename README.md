@@ -4,7 +4,7 @@ Simple plug-in for Android Studio/IDEA that allows one-click creation of [Butter
 
 ## How to install
 
-- in Android Studio: go to `Preferences → Plugins → Browse repositories` and search for `ButterKnifeZelezny`
+- in Android Studio: go to `Preferences → Plugins → Browse repositories` and search for `ButterKnife Zelezny`
 
 _or_
 
