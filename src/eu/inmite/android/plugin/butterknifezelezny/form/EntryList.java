@@ -3,6 +3,7 @@ package eu.inmite.android.plugin.butterknifezelezny.form;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
+import eu.inmite.android.plugin.butterknifezelezny.InjectWriter;
 import eu.inmite.android.plugin.butterknifezelezny.iface.ICancelListener;
 import eu.inmite.android.plugin.butterknifezelezny.iface.IConfirmListener;
 import eu.inmite.android.plugin.butterknifezelezny.model.Element;
@@ -12,16 +13,18 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class EntryList extends JPanel {
 
-	protected Project mProject;
+    protected Project mProject;
 	protected Editor mEditor;
 	protected ArrayList<Element> mElements = new ArrayList<Element>();
 	protected ArrayList<String> mGeneratedIDs = new ArrayList<String>();
 	protected ArrayList<Entry> mEntries = new ArrayList<Entry>();
 	protected boolean mCreateHolder = false;
+    protected InjectWriter.InjectType mInjectType;
 	protected String mPrefix = null;
 	protected IConfirmListener mConfirmListener;
 	protected ICancelListener mCancelListener;
@@ -32,11 +35,14 @@ public class EntryList extends JPanel {
 	protected JLabel mHolderLabel;
 	protected JButton mConfirm;
 	protected JButton mCancel;
+    protected boolean mWithButterKnife;
 
-	public EntryList(Project project, Editor editor, ArrayList<Element> elements, ArrayList<String> ids, boolean createHolder, IConfirmListener confirmListener, ICancelListener cancelListener) {
+	public EntryList(Project project, Editor editor, ArrayList<Element> elements, ArrayList<String> ids, boolean createHolder, boolean withButterKnife, IConfirmListener confirmListener, ICancelListener cancelListener) {
 		mProject = project;
 		mEditor = editor;
 		mCreateHolder = createHolder;
+        mWithButterKnife = withButterKnife;
+        mInjectType = mWithButterKnife ? InjectWriter.InjectType.BUTTERKNIFE : InjectWriter.InjectType.NATIVE_FINDS;
 		mConfirmListener = confirmListener;
 		mCancelListener = cancelListener;
 		if (elements != null) {
@@ -113,16 +119,43 @@ public class EntryList extends JPanel {
 		mHolderCheck.setSelected(mCreateHolder);
 		mHolderCheck.addChangeListener(new CheckHolderListener());
 
-		mHolderLabel = new JLabel();
-		mHolderLabel.setText("Create ViewHolder");
+        mHolderLabel = new JLabel();
+        mHolderLabel.setText("Create ViewHolder");
 
-		JPanel holderPanel = new JPanel();
-		holderPanel.setLayout(new BoxLayout(holderPanel, BoxLayout.LINE_AXIS));
-		holderPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-		holderPanel.add(mHolderCheck);
-		holderPanel.add(mHolderLabel);
-		holderPanel.add(Box.createHorizontalGlue());
-		add(holderPanel, BorderLayout.PAGE_END);
+        JPanel holderPanel = new JPanel();
+        holderPanel.setLayout(new BoxLayout(holderPanel, BoxLayout.LINE_AXIS));
+        holderPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        holderPanel.add(mHolderCheck);
+        holderPanel.add(mHolderLabel);
+        holderPanel.add(Box.createHorizontalGlue());
+        add(holderPanel, BorderLayout.PAGE_END);
+
+        //injection type
+        ButtonGroup injectionTypeButtonGroup = new ButtonGroup();
+        InjectionTypeActionListener injectionTypeActionListener = new InjectionTypeActionListener();
+        JPanel injectionTypePanel = new JPanel();
+        injectionTypePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        injectionTypePanel.setLayout(new BoxLayout(injectionTypePanel, BoxLayout.LINE_AXIS));
+
+        if(mWithButterKnife) {
+            JRadioButton butterKnifeRadioButton = new JRadioButton("ButterKnife injections", mInjectType == InjectWriter.InjectType.BUTTERKNIFE);
+            butterKnifeRadioButton.setActionCommand(InjectWriter.InjectType.BUTTERKNIFE.name());
+            butterKnifeRadioButton.addActionListener(injectionTypeActionListener);
+            injectionTypeButtonGroup.add(butterKnifeRadioButton);
+            injectionTypePanel.add(butterKnifeRadioButton);
+        }
+
+        JRadioButton nativeFindsRadioButton = new JRadioButton("Native find injections", mInjectType == InjectWriter.InjectType.NATIVE_FINDS);
+        nativeFindsRadioButton.setActionCommand(InjectWriter.InjectType.NATIVE_FINDS.name());
+        nativeFindsRadioButton.addActionListener(injectionTypeActionListener);
+        injectionTypeButtonGroup.add(nativeFindsRadioButton);
+        injectionTypePanel.add(nativeFindsRadioButton);
+
+        injectionTypePanel.add(Box.createHorizontalGlue());
+
+        add(injectionTypePanel, BorderLayout.PAGE_END);
+
+        //
 
 		mCancel = new JButton();
 		mCancel.setAction(new CancelAction());
@@ -178,6 +211,14 @@ public class EntryList extends JPanel {
 		}
 	}
 
+    public class InjectionTypeActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            mInjectType = InjectWriter.InjectType.valueOf(e.getActionCommand());
+        }
+    }
+
 	public class CheckPrefixListener implements ChangeListener {
 
 		@Override
@@ -203,7 +244,7 @@ public class EntryList extends JPanel {
 
 			if (valid) {
 				if (mConfirmListener != null) {
-					mConfirmListener.onConfirm(mProject, mEditor, mElements, mPrefix, mCreateHolder);
+					mConfirmListener.onConfirm(mProject, mEditor, mElements, mPrefix, mCreateHolder, mInjectType);
 				}
 			}
 		}
