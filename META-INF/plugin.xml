@@ -32,9 +32,9 @@
 	<actions>
 		<action id="AddInjectionsAction"
 			class="eu.inmite.android.plugin.butterknifezelezny.InjectAction"
-			text="Generate _Butterknife Injections"
+			text="Generate _Butterknife (or native finds) Injections"
 			icon="/eu/inmite/android/plugin/butterknifezelezny/icons/butterknife-zelezny.png"
-			description="Inserts Butterknife injections into currently opened source">
+			description="Inserts Butterknife (or native finds) injections into currently opened source">
 
 			<keyboard-shortcut
 				keymap="$default"

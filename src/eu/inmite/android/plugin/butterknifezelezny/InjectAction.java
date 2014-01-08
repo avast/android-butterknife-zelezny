@@ -22,8 +22,9 @@ import java.util.ArrayList;
 public class InjectAction extends BaseGenerateAction implements IConfirmListener, ICancelListener {
 
 	protected JFrame mDialog;
+    private boolean mWithButterKnife;
 
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
 	public InjectAction() {
 		super(null);
 	}
@@ -36,15 +37,17 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 	@Override
 	protected boolean isValidForClass(final PsiClass targetClass) {
 		PsiClass injectViewClass = JavaPsiFacade.getInstance(targetClass.getProject()).findClass("butterknife.InjectView", new EverythingGlobalScope(targetClass.getProject()));
+        mWithButterKnife = injectViewClass != null;
 
-		return (injectViewClass != null && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
+		return (/*injectViewClass != null && */super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
 	}
 
 	@Override
 	public boolean isValidForFile(Project project, Editor editor, PsiFile file) {
 		PsiClass injectViewClass = JavaPsiFacade.getInstance(project).findClass("butterknife.InjectView", new EverythingGlobalScope(project));
+        mWithButterKnife = injectViewClass != null;
 
-		return (injectViewClass != null && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
+		return (/*injectViewClass != null && */super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
 	}
 
 	@Override
@@ -73,7 +76,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 		}
 	}
 
-	public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder) {
+	public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder, InjectWriter.InjectType injectType) {
 		PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
 		PsiFile layout = Utils.getLayoutFileFromCaret(editor, file);
 
@@ -88,7 +91,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 		}
 
 		if (cnt > 0) { // generate injections
-			new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, fieldNamePrefix, layout.getName(), createHolder).execute();
+			new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, fieldNamePrefix, layout.getName(), createHolder, injectType).execute();
 
 			if (cnt == 1) {
 				Utils.showInfoNotification(project, "One injection added to " + file.getName());
@@ -134,7 +137,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 			}
 		}
 
-		EntryList panel = new EntryList(project, editor, elements, ids, createHolder, this, this);
+		EntryList panel = new EntryList(project, editor, elements, ids, createHolder, mWithButterKnife, this, this);
 
 		mDialog = new JFrame();
 		mDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
