@@ -15,9 +15,10 @@ _or_
 
  ![](img/zelezny_animated.gif)
 
- 1. Right click on usage of desired layout reference (e.g. R.layout.main in your Activity or Fragment), then `Generate` and `Generate ButterKnife Injections`
- 2. Pick injections you want, you also have an option to create ViewHolder for adapters.
- 3. Click `Confirm` and enjoy injections in your code with no work!
+ 1. Make sure you have latest [Butterknife](https://github.com/JakeWharton/butterknife) lib on your classpath
+ 2. Right click on usage of desired layout reference (e.g. R.layout.main in your Activity or Fragment), then `Generate` and `Generate ButterKnife Injections`
+ 3. Pick injections you want, you also have an option to create ViewHolder for adapters.
+ 4. Click `Confirm` and enjoy injections in your code with no work!
 
 
 ## How to build the code
