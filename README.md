@@ -35,3 +35,5 @@ _or_
 <img src="http://assets.espn.go.com/i/oly/summer08/afp/xml/en/biop/images/bio/15525.jpg" width="60"  align="right"/>
 
 [Jan Železný](http://en.wikipedia.org/wiki/Jan_%C5%BDelezn%C3%BD) is a famous Czech javelin thrower, Olympic champion and world record holder. With Zelezny's javelin, your butter knife will be much sharper!
+
+See [**our other Czech personalities**](http://inmite.github.io) who help with [#AndroidDev](https://plus.google.com/s/%23AndroidDev).
