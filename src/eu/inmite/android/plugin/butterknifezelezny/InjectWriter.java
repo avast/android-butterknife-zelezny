@@ -7,12 +7,18 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.PsiReturnStatement;
+import com.intellij.psi.PsiStatement;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.search.EverythingGlobalScope;
-import eu.inmite.android.plugin.butterknifezelezny.common.Defintions;
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 import java.util.ArrayList;
+
+import eu.inmite.android.plugin.butterknifezelezny.common.Defintions;
+import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 public class InjectWriter extends WriteCommandAction.Simple {
 
@@ -51,7 +57,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
 			generateAdapter();
 		} else {
 			generateFields();
-		}
+                        generateInjects();
+                }
 
 		// reformat class
 		JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
@@ -154,4 +161,75 @@ public class InjectWriter extends WriteCommandAction.Simple {
 			mClass.add(mFactory.createFieldFromText(injection.toString(), mClass));
 		}
 	}
+
+        protected void generateInjects() {
+            PsiClass activityClass = JavaPsiFacade.getInstance(mProject).findClass(
+                    "android.app.Activity", new EverythingGlobalScope(mProject));
+            PsiClass fragmentClass = JavaPsiFacade.getInstance(mProject).findClass(
+                    "android.app.Fragment", new EverythingGlobalScope(mProject));
+
+            // Check for Activity class
+            if (mClass.isInheritor(activityClass, true)) {
+                if (mClass.findMethodsByName("onCreate", false).length == 0) {
+                    // Cannot add ButterKnife.inject() without onCreate() method
+                    return;
+                } else {
+                    PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
+                    for (PsiStatement statement : onCreate.getBody().getStatements()) {
+                        // Search for setContentView()
+                        if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
+                            PsiReferenceExpression methodExpression
+                                    = ((PsiMethodCallExpression) statement.getFirstChild())
+                                    .getMethodExpression();
+                            // Insert ButterKnife.inject() after setContentView()
+                            if (methodExpression.getText().equals("setContentView")) {
+                                onCreate.getBody().addAfter(mFactory.createStatementFromText(
+                                        "butterknife.ButterKnife.inject(this);", mClass), statement);
+                                break;
+                            }
+                        }
+                    }
+                }
+            // Check for Fragment class
+            } else if (mClass.isInheritor(fragmentClass, true)) {
+                if (mClass.findMethodsByName("onCreateView", false).length == 0) {
+                    // Cannot add ButterKnife.inject() without onCreateView() method
+                    return;
+                } else {
+                    PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
+                    for (PsiStatement statement : onCreateView.getBody().getStatements()) {
+                        if (statement instanceof PsiReturnStatement) {
+                            // Insert ButterKnife.inject() before returning a view for a fragment
+                            StringBuilder inject = new StringBuilder();
+                            inject.append("butterknife.ButterKnife.inject(this, ");
+                            // Take a name of a returned local variable
+                            inject.append(((PsiReturnStatement) statement).getReturnValue().getText());
+                            inject.append(");");
+
+                            onCreateView.getBody().addBefore(mFactory.createStatementFromText(
+                                    inject.toString(), mClass), statement);
+                            break;
+                        }
+                    }
+
+                    // Insert ButterKnife.reset()
+                    // Create onDestroyView method if it's missing
+                    if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
+                        StringBuilder method = new StringBuilder();
+                        method.append("@Override public void onDestroyView() {");
+                        method.append("super.onDestroyView();\n");
+                        method.append("butterknife.ButterKnife.reset(this);\n");
+                        method.append("}");
+
+                        mClass.addAfter(mFactory.createMethodFromText(method.toString(), mClass),
+                                onCreateView);
+                    } else {
+                        PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
+                        onDestroyView.getBody().addBefore(
+                                mFactory.createStatementFromText("butterknife.ButterKnife.reset(this);",
+                                        mClass), onDestroyView.getBody().getLastBodyElement());
+                    }
+                }
+            }
+        }
 }
