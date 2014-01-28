@@ -179,8 +179,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
                     method.append("butterknife.ButterKnife.inject(this);\n");
                     method.append("}");
 
-                    PsiMethod onCreate = mFactory.createMethodFromText(method.toString(), mClass);
-                    mClass.add(onCreate);
+                    mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
                 } else {
                     PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
                     for (PsiStatement statement : onCreate.getBody().getStatements()) {
@@ -210,8 +209,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
                     method.append("return rootView;\n");
                     method.append("}");
 
-                    mClass.add(mFactory
-                            .createMethodFromText(method.toString(), mClass));
+                    mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
                 } else {
                     PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
                     for (PsiStatement statement : onCreateView.getBody().getStatements()) {
