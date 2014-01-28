@@ -171,8 +171,16 @@ public class InjectWriter extends WriteCommandAction.Simple {
             // Check for Activity class
             if (mClass.isInheritor(activityClass, true)) {
                 if (mClass.findMethodsByName("onCreate", false).length == 0) {
-                    // Cannot add ButterKnife.inject() without onCreate() method
-                    return;
+                    // Add an empty stub of onCreate()
+                    StringBuilder method = new StringBuilder();
+                    method.append("@Override protected void onCreate(android.os.Bundle savedInstanceState) {\n");
+                    method.append("super.onCreate(savedInstanceState);\n");
+                    method.append("\t// TODO: add setContentView(...) invocation\n");
+                    method.append("butterknife.ButterKnife.inject(this);\n");
+                    method.append("}");
+
+                    PsiMethod onCreate = mFactory.createMethodFromText(method.toString(), mClass);
+                    mClass.add(onCreate);
                 } else {
                     PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
                     for (PsiStatement statement : onCreate.getBody().getStatements()) {
@@ -193,8 +201,17 @@ public class InjectWriter extends WriteCommandAction.Simple {
             // Check for Fragment class
             } else if (mClass.isInheritor(fragmentClass, true)) {
                 if (mClass.findMethodsByName("onCreateView", false).length == 0) {
-                    // Cannot add ButterKnife.inject() without onCreateView() method
-                    return;
+                    // Add an empty stub of onCreateView()
+                    StringBuilder method = new StringBuilder();
+                    method.append("@Override public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {\n");
+                    method.append("\t// TODO: inflate a fragment view\n");
+                    method.append("android.view.View rootView = super.onCreateView(inflater, container, savedInstanceState);\n");
+                    method.append("butterknife.ButterKnife.inject(this, rootView);\n");
+                    method.append("return rootView;\n");
+                    method.append("}");
+
+                    mClass.add(mFactory
+                            .createMethodFromText(method.toString(), mClass));
                 } else {
                     PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
                     for (PsiStatement statement : onCreateView.getBody().getStatements()) {
@@ -211,24 +228,23 @@ public class InjectWriter extends WriteCommandAction.Simple {
                             break;
                         }
                     }
+                }
 
-                    // Insert ButterKnife.reset()
-                    // Create onDestroyView method if it's missing
-                    if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
-                        StringBuilder method = new StringBuilder();
-                        method.append("@Override public void onDestroyView() {");
-                        method.append("super.onDestroyView();\n");
-                        method.append("butterknife.ButterKnife.reset(this);\n");
-                        method.append("}");
+                // Insert ButterKnife.reset()
+                // Create onDestroyView method if it's missing
+                if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
+                    StringBuilder method = new StringBuilder();
+                    method.append("@Override public void onDestroyView() {\n");
+                    method.append("super.onDestroyView();\n");
+                    method.append("butterknife.ButterKnife.reset(this);\n");
+                    method.append("}");
 
-                        mClass.addAfter(mFactory.createMethodFromText(method.toString(), mClass),
-                                onCreateView);
-                    } else {
-                        PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
-                        onDestroyView.getBody().addBefore(
-                                mFactory.createStatementFromText("butterknife.ButterKnife.reset(this);",
-                                        mClass), onDestroyView.getBody().getLastBodyElement());
-                    }
+                    mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+                } else {
+                    PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
+                    onDestroyView.getBody().addBefore(
+                            mFactory.createStatementFromText("butterknife.ButterKnife.reset(this);",
+                                    mClass), onDestroyView.getBody().getLastBodyElement());
                 }
             }
         }
