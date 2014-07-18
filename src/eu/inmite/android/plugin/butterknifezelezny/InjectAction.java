@@ -88,7 +88,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 		}
 
 		if (cnt > 0) { // generate injections
-			new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, fieldNamePrefix, layout.getName(), createHolder).execute();
+			new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder).execute();
 
 			if (cnt == 1) {
 				Utils.showInfoNotification(project, "One injection added to " + file.getName());
