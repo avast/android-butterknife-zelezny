@@ -138,6 +138,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
 		mDialog = new JFrame();
 		mDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		mDialog.getRootPane().setDefaultButton(panel.getConfirmButton());
 		mDialog.getContentPane().add(panel);
 		mDialog.pack();
 		mDialog.setLocationRelativeTo(null);

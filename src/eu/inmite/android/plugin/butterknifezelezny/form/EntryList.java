@@ -168,6 +168,9 @@ public class EntryList extends JPanel {
 		return valid;
 	}
 
+	public JButton getConfirmButton() {
+		return mConfirm;
+	}
 	// classes
 
 	public class CheckHolderListener implements ChangeListener {
