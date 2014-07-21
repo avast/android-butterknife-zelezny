@@ -8,17 +8,20 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
- * Settings of the plugin.
+ * Settings UI for the plugin.
  *
  * @author David Vávra (david@inmite.eu)
  */
 public class Settings implements Configurable {
 
     public static final String PREFIX = "butterknifezelezny_prefix";
-    JTextField mPrefix;
+    public static final String VIEWHOLDER_CLASS_NAME = "butterknifezelezny_viewholder_class_name";
+
+    private JPanel mPanel;
+    private JTextField mHolderName;
+    private JTextField mPrefix;
 
     @Nls
     @Override
@@ -35,12 +38,8 @@ public class Settings implements Configurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        System.out.println("create");
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Prefix for generated members: "));
-        mPrefix = new JTextField(Utils.getPrefix(), 5);
-        panel.add(mPrefix);
-        return panel;
+        reset();
+        return mPanel;
     }
 
     @Override
@@ -50,13 +49,14 @@ public class Settings implements Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        System.out.println("apply");
         PropertiesComponent.getInstance().setValue(PREFIX, mPrefix.getText());
+        PropertiesComponent.getInstance().setValue(VIEWHOLDER_CLASS_NAME, mHolderName.getText());
     }
 
     @Override
     public void reset() {
-
+        mPrefix.setText(Utils.getPrefix());
+        mHolderName.setText(Utils.getViewHolderClassName());
     }
 
     @Override

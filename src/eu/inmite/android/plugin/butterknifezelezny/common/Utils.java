@@ -258,6 +258,10 @@ public class Utils {
 		return prefix;
 	}
 
+    public static String getViewHolderClassName() {
+        return PropertiesComponent.getInstance().getValue(Settings.VIEWHOLDER_CLASS_NAME, "ViewHolder");
+    }
+
 	/**
 	 * Parse ID of injected element (eg. R.id.text)
 	 *

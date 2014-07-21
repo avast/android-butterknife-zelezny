@@ -17,6 +17,7 @@ import com.intellij.psi.search.EverythingGlobalScope;
 import java.util.ArrayList;
 
 import eu.inmite.android.plugin.butterknifezelezny.common.Defintions;
+import eu.inmite.android.plugin.butterknifezelezny.common.Utils;
 import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 public class InjectWriter extends WriteCommandAction.Simple {
@@ -29,8 +30,6 @@ public class InjectWriter extends WriteCommandAction.Simple {
 	protected String mLayoutFileName;
 	protected String mFieldNamePrefix;
 	protected boolean mCreateHolder;
-	//
-	private static final String sViewHolderName = "ButterknifeViewHolder";
 
 	public InjectWriter(PsiFile file, PsiClass clazz, String command, ArrayList<Element> elements, String layoutFileName, String fieldNamePrefix, boolean createHolder) {
 		super(clazz.getProject(), command);
@@ -73,13 +72,13 @@ public class InjectWriter extends WriteCommandAction.Simple {
 	protected void generateAdapter() {
 		// view holder class
 		StringBuilder holderBuilder = new StringBuilder();
-		holderBuilder.append(sViewHolderName);
+		holderBuilder.append(Utils.getViewHolderClassName());
 		holderBuilder.append("(android.view.View view) {");
 		holderBuilder.append("butterknife.ButterKnife.inject(this, view);");
 		holderBuilder.append("}");
 
 		PsiClass viewHolder = mFactory.createClassFromText(holderBuilder.toString(), mClass);
-		viewHolder.setName(sViewHolderName);
+		viewHolder.setName(Utils.getViewHolderClassName());
 
 		// add injections into view holder
 		for (Element element : mElements) {
@@ -124,11 +123,11 @@ public class InjectWriter extends WriteCommandAction.Simple {
 		comment.append("'\n");
 		comment.append("* for easy to all layout elements.\n");
 		comment.append(" *\n");
-		comment.append(" * @author\tAndroid Butter Zelezny, plugin for IntelliJ IDEA/Android Studio by Inmite (www.inmite.eu)\n");
+		comment.append(" * @author\tButterKnifeZelezny, plugin for Android Studio by Inmite Developers (http://inmite.github.io)\n");
 		comment.append("*/");
 
-		mClass.addBefore(mFactory.createCommentFromText(comment.toString(), mClass), mClass.findInnerClassByName(sViewHolderName, true));
-		mClass.addBefore(mFactory.createKeyword("static", mClass), mClass.findInnerClassByName(sViewHolderName, true));
+		mClass.addBefore(mFactory.createCommentFromText(comment.toString(), mClass), mClass.findInnerClassByName(Utils.getViewHolderClassName(), true));
+		mClass.addBefore(mFactory.createKeyword("static", mClass), mClass.findInnerClassByName(Utils.getViewHolderClassName(), true));
 	}
 
 	/**
