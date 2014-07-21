@@ -1,7 +1,7 @@
 <idea-plugin version="2">
 	<id>eu.inmite.android.plugin.butterknifezelezny</id>
 	<name>Android ButterKnife Zelezny</name>
-	<version>1.0.1</version>
+	<version>1.1</version>
 	<vendor email="carnero@inmite.eu" url="http://inmite.eu/">inmite</vendor>
 
 	<description><![CDATA[
@@ -10,6 +10,11 @@
 
 	<change-notes><![CDATA[
 <html>
+
+  <b>1.1</b> (1/6/2014)
+  <ul>
+    <li>Major update
+  </ul>
 
   <b>1.0.1</b> (1/6/2014)
   <ul>
@@ -44,5 +49,7 @@
 		</action>
 	</actions>
 
-	<extensions defaultExtensionNs="com.intellij"/>
+	<extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable instance="eu.inmite.android.plugin.butterknifezelezny.Settings" />
+	</extensions>
 </idea-plugin>

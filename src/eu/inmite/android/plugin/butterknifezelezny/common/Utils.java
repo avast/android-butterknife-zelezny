@@ -1,5 +1,6 @@
 package eu.inmite.android.plugin.butterknifezelezny.common;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
@@ -20,6 +21,7 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.ui.awt.RelativePoint;
+import eu.inmite.android.plugin.butterknifezelezny.Settings;
 import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 import java.util.ArrayList;
@@ -244,13 +246,15 @@ public class Utils {
 	 * @return
 	 */
 	public static String getPrefix() {
-		CodeStyleSettingsManager manager = CodeStyleSettingsManager.getInstance();
-		CodeStyleSettings settings = manager.getCurrentSettings();
-		String prefix = settings.FIELD_NAME_PREFIX;
+        String prefix = PropertiesComponent.getInstance().getValue(Settings.PREFIX);
+        if (prefix == null || prefix.length() == 0) {
+            CodeStyleSettingsManager manager = CodeStyleSettingsManager.getInstance();
+            CodeStyleSettings settings = manager.getCurrentSettings();
+            prefix = settings.FIELD_NAME_PREFIX;
+        }
 		if (prefix == null || prefix.length() == 0) {
 			prefix = "m"; // field name
 		}
-
 		return prefix;
 	}
 
