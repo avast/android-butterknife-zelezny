@@ -5,25 +5,28 @@
 	<vendor email="carnero@inmite.eu" url="http://inmite.eu/">inmite</vendor>
 
 	<description><![CDATA[
-      Simple plugin for generating Butterknife injections from selected layout XML.
+      Plugin for generating ButterKnife injections from selected layout XMLs in activities/fragments/adapters.
       ]]></description>
 
 	<change-notes><![CDATA[
 <html>
 
-  <b>1.1</b> (1/6/2014)
+  <b>1.1</b> (7/21/2014)
   <ul>
-    <li>Major update
+    <li>new settings: change default prefix and ViewHolder class name</li>
+    <li>adds ButterKnife inject() and reset() methods if not present</li>
+    <li>dialog can be confirmed by ENTER</li>
+    <li>bugfixes</li>
   </ul>
 
   <b>1.0.1</b> (1/6/2014)
   <ul>
-    <li>Fix for Java 6
+    <li>Fix for Java 6</li>
   </ul>
 
   <b>1.0</b> (12/30/2013)
   <ul>
-    <li>Initial release
+    <li>Initial release</li>
   </ul>
 </html>
       ]]></change-notes>
@@ -39,7 +42,7 @@
 			class="eu.inmite.android.plugin.butterknifezelezny.InjectAction"
 			text="Generate _Butterknife Injections"
 			icon="/eu/inmite/android/plugin/butterknifezelezny/icons/butterknife-zelezny.png"
-			description="Inserts Butterknife injections into currently opened source">
+			description="Plugin for generating ButterKnife injections from selected layout XMLs in activities/fragments/adapters">
 
 			<keyboard-shortcut
 				keymap="$default"
