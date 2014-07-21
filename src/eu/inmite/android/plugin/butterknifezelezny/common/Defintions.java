@@ -11,6 +11,7 @@ public class Defintions {
 	static {
 		// special classes; default package is android.widget.*
 		paths.put("WebView", "android.webkit.WebView");
+		paths.put("View", "android.view.View");
 
 		// adapters
 		adapters.add("android.widget.ListAdapter");
