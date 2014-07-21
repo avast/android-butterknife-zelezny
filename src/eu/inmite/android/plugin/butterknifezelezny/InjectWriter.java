@@ -76,7 +76,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
 		StringBuilder holderBuilder = new StringBuilder();
 		holderBuilder.append(sViewHolderName);
 		holderBuilder.append("(android.view.View view) {");
-		holderBuilder.append("butterknife.Views.inject(this, view);");
+		holderBuilder.append("butterknife.ButterKnife.inject(this, view);");
 		holderBuilder.append("}");
 
 		PsiClass viewHolder = mFactory.createClassFromText(holderBuilder.toString(), mClass);
