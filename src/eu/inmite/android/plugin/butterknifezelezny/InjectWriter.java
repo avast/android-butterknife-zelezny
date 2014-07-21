@@ -1,5 +1,6 @@
 package eu.inmite.android.plugin.butterknifezelezny;
 
+import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
@@ -62,8 +63,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
 		JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
 		styleManager.optimizeImports(mFile);
 		styleManager.shortenClassReferences(mClass);
-
-		// TODO: can't build this, removing for now: new ReformatAndOptimizeImportsProcessor(mProject, mClass.getContainingFile(), false).runWithoutProgress();
+        new ReformatCodeProcessor(mProject, mClass.getContainingFile(), null, false).runWithoutProgress();
 	}
 
 	/**
