@@ -72,10 +72,12 @@ public class Element {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Utils.getPrefix());
 
-		for (String word : words) {
-			String[] idTokens = word.split("\\.");
+		for (int i = 0; i < words.length; i++) {
+			String[] idTokens = words[i].split("\\.");
 			char[] chars = idTokens[idTokens.length - 1].toCharArray();
-			chars[0] = Character.toUpperCase(chars[0]);
+			if (i > 0 || !Utils.isEmptyString(Utils.getPrefix())) {
+			    chars[0] = Character.toUpperCase(chars[0]);
+			}
 
 			sb.append(chars);
 		}
