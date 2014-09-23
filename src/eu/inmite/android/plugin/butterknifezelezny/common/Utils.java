@@ -146,14 +146,11 @@ public class Utils {
 
 					if (tag.getName().equalsIgnoreCase("include")) {
 						XmlAttribute layout = tag.getAttribute("layout", null);
-                        XmlAttribute id = tag.getAttribute("android:id", null);
-                        if(id != null && !isEmptyString(id.getValue())) {
-                            Element includeElement = new Element(Defintions.paths.get("View"), "include".concat(getInjectionID(id.getValue())));
-                            elements.add(includeElement);
-                        }
+
 						if (layout != null) {
 							Project project = file.getProject();
 							PsiFile include = findLayoutResource(project, getLayoutName(layout.getValue()));
+
 							if (include != null) {
 								getIDsFromLayout(include, elements);
 
