@@ -159,8 +159,24 @@ public class InjectWriter extends WriteCommandAction.Simple {
 			mClass.add(mFactory.createFieldFromText(injection.toString(), mClass));
 		}
 	}
+    private boolean containsButterKnifeInjectLine(PsiMethod method){
+        PsiStatement[] statements = method.getBody().getStatements();
+        for(PsiStatement psiStatement: statements){
+            String statementAsString = psiStatement.getText();
+            if(psiStatement instanceof PsiMethodCallExpression
+                  &&
+                    (statementAsString.contains("ButterKnife.inject(this,")              /* covers the case of ButterKnife.inject(this, view) in Fragment */
+                  || statementAsString.contains("butterknife.ButterKnife.inject(this,")  /* covers the case of ButterKnife in Fragment */
+                  || statementAsString.contains("butterknife.ButterKnife.inject(this);") /* covers the case of ButterKnife in Activity */
+                  || statementAsString.contains("ButterKnife.inject(this);"))){   /* covers the case of ButterKnife in Activity */
+                return true;
+            }
+        }
+        return false;
+    }
 
-        protected void generateInjects() {
+
+    protected void generateInjects() {
             PsiClass activityClass = JavaPsiFacade.getInstance(mProject).findClass(
                     "android.app.Activity", new EverythingGlobalScope(mProject));
             PsiClass fragmentClass = JavaPsiFacade.getInstance(mProject).findClass(
@@ -180,17 +196,19 @@ public class InjectWriter extends WriteCommandAction.Simple {
                     mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
                 } else {
                     PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
-                    for (PsiStatement statement : onCreate.getBody().getStatements()) {
-                        // Search for setContentView()
-                        if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
-                            PsiReferenceExpression methodExpression
-                                    = ((PsiMethodCallExpression) statement.getFirstChild())
-                                    .getMethodExpression();
-                            // Insert ButterKnife.inject() after setContentView()
-                            if (methodExpression.getText().equals("setContentView")) {
-                                onCreate.getBody().addAfter(mFactory.createStatementFromText(
-                                        "butterknife.ButterKnife.inject(this);", mClass), statement);
-                                break;
+                    if(!containsButterKnifeInjectLine(onCreate)) {
+                        for (PsiStatement statement : onCreate.getBody().getStatements()) {
+                            // Search for setContentView()
+                            if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
+                                PsiReferenceExpression methodExpression
+                                        = ((PsiMethodCallExpression) statement.getFirstChild())
+                                        .getMethodExpression();
+                                // Insert ButterKnife.inject() after setContentView()
+                                if (methodExpression.getText().equals("setContentView")) {
+                                    onCreate.getBody().addAfter(mFactory.createStatementFromText(
+                                            "butterknife.ButterKnife.inject(this);", mClass), statement);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -210,18 +228,20 @@ public class InjectWriter extends WriteCommandAction.Simple {
                     mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
                 } else {
                     PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
-                    for (PsiStatement statement : onCreateView.getBody().getStatements()) {
-                        if (statement instanceof PsiReturnStatement) {
-                            // Insert ButterKnife.inject() before returning a view for a fragment
-                            StringBuilder inject = new StringBuilder();
-                            inject.append("butterknife.ButterKnife.inject(this, ");
-                            // Take a name of a returned local variable
-                            inject.append(((PsiReturnStatement) statement).getReturnValue().getText());
-                            inject.append(");");
+                    if (!containsButterKnifeInjectLine(onCreateView)) {
+                        for (PsiStatement statement : onCreateView.getBody().getStatements()) {
+                            if (statement instanceof PsiReturnStatement) {
+                                // Insert ButterKnife.inject() before returning a view for a fragment
+                                StringBuilder inject = new StringBuilder();
+                                inject.append("butterknife.ButterKnife.inject(this, ");
+                                // Take a name of a returned local variable
+                                inject.append(((PsiReturnStatement) statement).getReturnValue().getText());
+                                inject.append(");");
 
-                            onCreateView.getBody().addBefore(mFactory.createStatementFromText(
-                                    inject.toString(), mClass), statement);
-                            break;
+                                onCreateView.getBody().addBefore(mFactory.createStatementFromText(
+                                        inject.toString(), mClass), statement);
+                                break;
+                            }
                         }
                     }
                 }
