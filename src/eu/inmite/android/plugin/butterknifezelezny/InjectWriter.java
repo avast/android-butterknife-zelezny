@@ -181,9 +181,11 @@ public class InjectWriter extends WriteCommandAction.Simple {
                     "android.app.Activity", new EverythingGlobalScope(mProject));
             PsiClass fragmentClass = JavaPsiFacade.getInstance(mProject).findClass(
                     "android.app.Fragment", new EverythingGlobalScope(mProject));
+			PsiClass supportFragmentClass = JavaPsiFacade.getInstance(mProject).findClass(
+					"android.support.v4.app.Fragment", new EverythingGlobalScope(mProject));
 
             // Check for Activity class
-            if (mClass.isInheritor(activityClass, true)) {
+            if (activityClass!=null && mClass.isInheritor(activityClass, true)) {
                 if (mClass.findMethodsByName("onCreate", false).length == 0) {
                     // Add an empty stub of onCreate()
                     StringBuilder method = new StringBuilder();
@@ -214,7 +216,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
                     }
                 }
             // Check for Fragment class
-            } else if (mClass.isInheritor(fragmentClass, true)) {
+            } else if ((fragmentClass != null && mClass.isInheritor(fragmentClass, true)) || (supportFragmentClass != null && mClass.isInheritor(supportFragmentClass, true))) {
                 if (mClass.findMethodsByName("onCreateView", false).length == 0) {
                     // Add an empty stub of onCreateView()
                     StringBuilder method = new StringBuilder();
@@ -227,19 +229,20 @@ public class InjectWriter extends WriteCommandAction.Simple {
 
                     mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
                 } else {
-                    PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
+					PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
                     if (!containsButterKnifeInjectLine(onCreateView)) {
-                        for (PsiStatement statement : onCreateView.getBody().getStatements()) {
+						for (PsiStatement statement : onCreateView.getBody().getStatements()) {
                             if (statement instanceof PsiReturnStatement) {
-                                // Insert ButterKnife.inject() before returning a view for a fragment
-                                StringBuilder inject = new StringBuilder();
-                                inject.append("butterknife.ButterKnife.inject(this, ");
-                                // Take a name of a returned local variable
-                                inject.append(((PsiReturnStatement) statement).getReturnValue().getText());
-                                inject.append(");");
-
-                                onCreateView.getBody().addBefore(mFactory.createStatementFromText(
-                                        inject.toString(), mClass), statement);
+								String returnValue = ((PsiReturnStatement) statement).getReturnValue().getText();
+								if (returnValue.contains("R.layout")) {
+									onCreateView.getBody().addBefore(mFactory.createStatementFromText("android.view.View view = "+returnValue+";", mClass), statement);
+									onCreateView.getBody().addBefore(mFactory.createStatementFromText("butterknife.ButterKnife.inject(this, view);", mClass), statement);
+									statement.replace(mFactory.createStatementFromText("return view;", mClass));
+								} else {
+									// Insert ButterKnife.inject() before returning a view for a fragment
+									onCreateView.getBody().addBefore(mFactory.createStatementFromText(
+											"butterknife.ButterKnife.inject(this, " + returnValue + ");", mClass), statement);
+								}
                                 break;
                             }
                         }
