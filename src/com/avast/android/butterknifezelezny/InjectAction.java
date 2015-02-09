@@ -21,136 +21,136 @@ import java.util.ArrayList;
 
 public class InjectAction extends BaseGenerateAction implements IConfirmListener, ICancelListener {
 
-	protected JFrame mDialog;
+    protected JFrame mDialog;
 
-	@SuppressWarnings("unused")
-	public InjectAction() {
-		super(null);
-	}
+    @SuppressWarnings("unused")
+    public InjectAction() {
+        super(null);
+    }
 
-	@SuppressWarnings("unused")
-	public InjectAction(CodeInsightActionHandler handler) {
-		super(handler);
-	}
+    @SuppressWarnings("unused")
+    public InjectAction(CodeInsightActionHandler handler) {
+        super(handler);
+    }
 
-	@Override
-	protected boolean isValidForClass(final PsiClass targetClass) {
-		PsiClass injectViewClass = JavaPsiFacade.getInstance(targetClass.getProject()).findClass("butterknife.InjectView", new EverythingGlobalScope(targetClass.getProject()));
+    @Override
+    protected boolean isValidForClass(final PsiClass targetClass) {
+        PsiClass injectViewClass = JavaPsiFacade.getInstance(targetClass.getProject()).findClass("butterknife.InjectView", new EverythingGlobalScope(targetClass.getProject()));
 
-		return (injectViewClass != null && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
-	}
+        return (injectViewClass != null && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
+    }
 
-	@Override
-	public boolean isValidForFile(Project project, Editor editor, PsiFile file) {
-		PsiClass injectViewClass = JavaPsiFacade.getInstance(project).findClass("butterknife.InjectView", new EverythingGlobalScope(project));
+    @Override
+    public boolean isValidForFile(Project project, Editor editor, PsiFile file) {
+        PsiClass injectViewClass = JavaPsiFacade.getInstance(project).findClass("butterknife.InjectView", new EverythingGlobalScope(project));
 
-		return (injectViewClass != null && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
-	}
+        return (injectViewClass != null && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
+    }
 
-	@Override
-	public void actionPerformed(AnActionEvent event) {
-		Project project = event.getData(PlatformDataKeys.PROJECT);
-		Editor editor = event.getData(PlatformDataKeys.EDITOR);
+    @Override
+    public void actionPerformed(AnActionEvent event) {
+        Project project = event.getData(PlatformDataKeys.PROJECT);
+        Editor editor = event.getData(PlatformDataKeys.EDITOR);
 
-		actionPerformedImpl(project, editor);
-	}
+        actionPerformedImpl(project, editor);
+    }
 
-	@Override
-	public void actionPerformedImpl(Project project, Editor editor) {
-		PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-		PsiFile layout = Utils.getLayoutFileFromCaret(editor, file);
+    @Override
+    public void actionPerformedImpl(Project project, Editor editor) {
+        PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
+        PsiFile layout = Utils.getLayoutFileFromCaret(editor, file);
 
-		if (layout == null) {
-			Utils.showErrorNotification(project, "No layout found");
-			return; // no layout found
-		}
+        if (layout == null) {
+            Utils.showErrorNotification(project, "No layout found");
+            return; // no layout found
+        }
 
-		ArrayList<Element> elements = Utils.getIDsFromLayout(layout);
-		if (!elements.isEmpty()) {
-			showDialog(project, editor, elements);
-		} else {
-			Utils.showErrorNotification(project, "No IDs found in layout");
-		}
-	}
+        ArrayList<Element> elements = Utils.getIDsFromLayout(layout);
+        if (!elements.isEmpty()) {
+            showDialog(project, editor, elements);
+        } else {
+            Utils.showErrorNotification(project, "No IDs found in layout");
+        }
+    }
 
-	public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder) {
-		PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-		PsiFile layout = Utils.getLayoutFileFromCaret(editor, file);
+    public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder) {
+        PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
+        PsiFile layout = Utils.getLayoutFileFromCaret(editor, file);
 
-		closeDialog();
+        closeDialog();
 
-		// count selected elements
-		int cnt = 0;
-		for (Element element : elements) {
-			if (element.used) {
-				cnt++;
-			}
-		}
+        // count selected elements
+        int cnt = 0;
+        for (Element element : elements) {
+            if (element.used) {
+                cnt++;
+            }
+        }
 
-		if (cnt > 0) { // generate injections
-			new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder).execute();
+        if (cnt > 0) { // generate injections
+            new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder).execute();
 
-			if (cnt == 1) {
-				Utils.showInfoNotification(project, "One injection added to " + file.getName());
-			} else {
-				Utils.showInfoNotification(project, String.valueOf(cnt) + " injections added to " + file.getName());
-			}
-		} else { // just notify user about no element selected
-			Utils.showInfoNotification(project, "No injection was selected");
-		}
-	}
+            if (cnt == 1) {
+                Utils.showInfoNotification(project, "One injection added to " + file.getName());
+            } else {
+                Utils.showInfoNotification(project, String.valueOf(cnt) + " injections added to " + file.getName());
+            }
+        } else { // just notify user about no element selected
+            Utils.showInfoNotification(project, "No injection was selected");
+        }
+    }
 
-	public void onCancel() {
-		closeDialog();
-	}
+    public void onCancel() {
+        closeDialog();
+    }
 
-	protected void showDialog(Project project, Editor editor, ArrayList<Element> elements) {
-		PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
-		PsiClass clazz = getTargetClass(editor, file);
+    protected void showDialog(Project project, Editor editor, ArrayList<Element> elements) {
+        PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
+        PsiClass clazz = getTargetClass(editor, file);
 
-		// get parent classes and check if it's an adapter
-		boolean createHolder = false;
-		PsiReferenceList list = getTargetClass(editor, file).getExtendsList();
-		for (PsiJavaCodeReferenceElement element : list.getReferenceElements()) {
-			if (Definitions.adapters.contains(element.getQualifiedName())) {
-				createHolder = true;
-			}
-		}
+        // get parent classes and check if it's an adapter
+        boolean createHolder = false;
+        PsiReferenceList list = getTargetClass(editor, file).getExtendsList();
+        for (PsiJavaCodeReferenceElement element : list.getReferenceElements()) {
+            if (Definitions.adapters.contains(element.getQualifiedName())) {
+                createHolder = true;
+            }
+        }
 
-		// get already generated injections
-		ArrayList<String> ids = new ArrayList<String>();
-		PsiField[] fields = clazz.getAllFields();
-		String[] annotations;
-		String id;
+        // get already generated injections
+        ArrayList<String> ids = new ArrayList<String>();
+        PsiField[] fields = clazz.getAllFields();
+        String[] annotations;
+        String id;
 
-		for (PsiField field : fields) {
-			annotations = field.getFirstChild().getText().split(" ");
+        for (PsiField field : fields) {
+            annotations = field.getFirstChild().getText().split(" ");
 
-			for (String annotation : annotations) {
-				id = Utils.getInjectionID(annotation.trim());
-				if (!Utils.isEmptyString(id)) {
-					ids.add(id);
-				}
-			}
-		}
+            for (String annotation : annotations) {
+                id = Utils.getInjectionID(annotation.trim());
+                if (!Utils.isEmptyString(id)) {
+                    ids.add(id);
+                }
+            }
+        }
 
-		EntryList panel = new EntryList(project, editor, elements, ids, createHolder, this, this);
+        EntryList panel = new EntryList(project, editor, elements, ids, createHolder, this, this);
 
-		mDialog = new JFrame();
-		mDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		mDialog.getRootPane().setDefaultButton(panel.getConfirmButton());
-		mDialog.getContentPane().add(panel);
-		mDialog.pack();
-		mDialog.setLocationRelativeTo(null);
-		mDialog.setVisible(true);
-	}
+        mDialog = new JFrame();
+        mDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        mDialog.getRootPane().setDefaultButton(panel.getConfirmButton());
+        mDialog.getContentPane().add(panel);
+        mDialog.pack();
+        mDialog.setLocationRelativeTo(null);
+        mDialog.setVisible(true);
+    }
 
-	protected void closeDialog() {
-		if (mDialog == null) {
-			return;
-		}
+    protected void closeDialog() {
+        if (mDialog == null) {
+            return;
+        }
 
-		mDialog.setVisible(false);
-		mDialog.dispose();
-	}
+        mDialog.setVisible(false);
+        mDialog.dispose();
+    }
 }
