@@ -116,12 +116,16 @@ public class EntryList extends JPanel {
         mHolderLabel = new JLabel();
         mHolderLabel.setText("Create ViewHolder");
 
+        JLabel settingsInfo = new JLabel();
+        settingsInfo.setText("(You can configure this plugin in Preferences)");
+
         JPanel holderPanel = new JPanel();
         holderPanel.setLayout(new BoxLayout(holderPanel, BoxLayout.LINE_AXIS));
         holderPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         holderPanel.add(mHolderCheck);
         holderPanel.add(mHolderLabel);
         holderPanel.add(Box.createHorizontalGlue());
+        holderPanel.add(settingsInfo);
         add(holderPanel, BorderLayout.PAGE_END);
 
         mCancel = new JButton();
