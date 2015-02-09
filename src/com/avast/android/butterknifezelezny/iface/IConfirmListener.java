@@ -1,8 +1,8 @@
-package eu.inmite.android.plugin.butterknifezelezny.iface;
+package com.avast.android.butterknifezelezny.iface;
 
+import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 import java.util.ArrayList;
 

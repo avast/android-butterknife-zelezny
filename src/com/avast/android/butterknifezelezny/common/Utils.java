@@ -1,5 +1,7 @@
-package eu.inmite.android.plugin.butterknifezelezny.common;
+package com.avast.android.butterknifezelezny.common;
 
+import com.avast.android.butterknifezelezny.Settings;
+import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -21,8 +23,6 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.ui.awt.RelativePoint;
-import eu.inmite.android.plugin.butterknifezelezny.Settings;
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;

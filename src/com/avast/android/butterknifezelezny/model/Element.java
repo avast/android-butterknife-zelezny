@@ -1,6 +1,6 @@
-package eu.inmite.android.plugin.butterknifezelezny.model;
+package com.avast.android.butterknifezelezny.model;
 
-import eu.inmite.android.plugin.butterknifezelezny.common.Utils;
+import com.avast.android.butterknifezelezny.common.Utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

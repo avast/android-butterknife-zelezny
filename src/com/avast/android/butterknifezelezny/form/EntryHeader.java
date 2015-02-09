@@ -1,4 +1,4 @@
-package eu.inmite.android.plugin.butterknifezelezny.form;
+package com.avast.android.butterknifezelezny.form;
 
 import javax.swing.*;
 import java.awt.*;

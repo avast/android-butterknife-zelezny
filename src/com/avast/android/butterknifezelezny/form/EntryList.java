@@ -1,11 +1,11 @@
-package eu.inmite.android.plugin.butterknifezelezny.form;
+package com.avast.android.butterknifezelezny.form;
 
+import com.avast.android.butterknifezelezny.iface.ICancelListener;
+import com.avast.android.butterknifezelezny.iface.IConfirmListener;
+import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
-import eu.inmite.android.plugin.butterknifezelezny.iface.ICancelListener;
-import eu.inmite.android.plugin.butterknifezelezny.iface.IConfirmListener;
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

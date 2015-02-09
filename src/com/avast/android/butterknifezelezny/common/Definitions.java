@@ -1,9 +1,9 @@
-package eu.inmite.android.plugin.butterknifezelezny.common;
+package com.avast.android.butterknifezelezny.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Defintions {
+public class Definitions {
 
 	public static final HashMap<String, String> paths = new HashMap<String, String>();
 	public static final ArrayList<String> adapters = new ArrayList<String>();

@@ -21,14 +21,15 @@ _or_
  4. Click `Confirm` and enjoy injections in your code with no work!
 
 
-## How to build the code
+## Contributing
 
+Pull requests are welcomed!
+
+- make sure you stick to [our coding style](/code-formatting-config.xml).
 - follow [Getting Started with Plugin Development](http://confluence.jetbrains.com/display/IDEADEV/Getting+Started+with+Plugin+Development)
 - make sure you have Java 6 installed if you want to publish it in the plugin repository
+- initial project setup might be tricky (like editing iml files manually), don't hesitate to contact @destil if you run into troubles.
 
-## Other's work
-
-- [IDEA code generator](https://github.com/kurganec/intellij-android-codegenerator/) by Anatoly Korniltsev 
 
 ## Why 'Zelezny'?
 

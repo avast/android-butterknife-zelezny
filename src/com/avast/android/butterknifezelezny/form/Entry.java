@@ -1,6 +1,7 @@
-package eu.inmite.android.plugin.butterknifezelezny.form;
+package com.avast.android.butterknifezelezny.form;
 
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
+
+import com.avast.android.butterknifezelezny.model.Element;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

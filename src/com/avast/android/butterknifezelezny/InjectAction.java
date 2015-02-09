@@ -1,5 +1,11 @@
-package eu.inmite.android.plugin.butterknifezelezny;
+package com.avast.android.butterknifezelezny;
 
+import com.avast.android.butterknifezelezny.common.Definitions;
+import com.avast.android.butterknifezelezny.common.Utils;
+import com.avast.android.butterknifezelezny.form.EntryList;
+import com.avast.android.butterknifezelezny.iface.ICancelListener;
+import com.avast.android.butterknifezelezny.iface.IConfirmListener;
+import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -9,12 +15,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.util.PsiUtilBase;
-import eu.inmite.android.plugin.butterknifezelezny.common.Defintions;
-import eu.inmite.android.plugin.butterknifezelezny.common.Utils;
-import eu.inmite.android.plugin.butterknifezelezny.form.EntryList;
-import eu.inmite.android.plugin.butterknifezelezny.iface.ICancelListener;
-import eu.inmite.android.plugin.butterknifezelezny.iface.IConfirmListener;
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 		boolean createHolder = false;
 		PsiReferenceList list = getTargetClass(editor, file).getExtendsList();
 		for (PsiJavaCodeReferenceElement element : list.getReferenceElements()) {
-			if (Defintions.adapters.contains(element.getQualifiedName())) {
+			if (Definitions.adapters.contains(element.getQualifiedName())) {
 				createHolder = true;
 			}
 		}

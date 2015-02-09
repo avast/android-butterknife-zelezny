@@ -1,5 +1,8 @@
-package eu.inmite.android.plugin.butterknifezelezny;
+package com.avast.android.butterknifezelezny;
 
+import com.avast.android.butterknifezelezny.common.Definitions;
+import com.avast.android.butterknifezelezny.common.Utils;
+import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
@@ -16,10 +19,6 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.search.EverythingGlobalScope;
 
 import java.util.ArrayList;
-
-import eu.inmite.android.plugin.butterknifezelezny.common.Defintions;
-import eu.inmite.android.plugin.butterknifezelezny.common.Utils;
-import eu.inmite.android.plugin.butterknifezelezny.model.Element;
 
 public class InjectWriter extends WriteCommandAction.Simple {
 
@@ -100,8 +99,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
 			injection.append(") ");
 			if (element.nameFull != null && element.nameFull.length() > 0) { // custom package+class
 				injection.append(element.nameFull);
-			} else if (Defintions.paths.containsKey(element.name)) { // listed class
-				injection.append(Defintions.paths.get(element.name));
+			} else if (Definitions.paths.containsKey(element.name)) { // listed class
+				injection.append(Definitions.paths.get(element.name));
 			} else { // android.widget
 				injection.append("android.widget.");
 				injection.append(element.name);
@@ -123,7 +122,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
 		comment.append("'\n");
 		comment.append("* for easy to all layout elements.\n");
 		comment.append(" *\n");
-		comment.append(" * @author\tButterKnifeZelezny, plugin for Android Studio by Inmite Developers (http://inmite.github.io)\n");
+		comment.append(" * @author\tButterKnifeZelezny, plugin for Android Studio by Avast Developers (http://github.com/avast)\n");
 		comment.append("*/");
 
 		mClass.addBefore(mFactory.createCommentFromText(comment.toString(), mClass), mClass.findInnerClassByName(Utils.getViewHolderClassName(), true));
@@ -146,8 +145,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
 			injection.append(") ");
 			if (element.nameFull != null && element.nameFull.length() > 0) { // custom package+class
 				injection.append(element.nameFull);
-			} else if (Defintions.paths.containsKey(element.name)) { // listed class
-				injection.append(Defintions.paths.get(element.name));
+			} else if (Definitions.paths.containsKey(element.name)) { // listed class
+				injection.append(Definitions.paths.get(element.name));
 			} else { // android.widget
 				injection.append("android.widget.");
 				injection.append(element.name);

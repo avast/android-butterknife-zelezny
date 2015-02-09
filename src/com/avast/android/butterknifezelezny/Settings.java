@@ -1,9 +1,9 @@
-package eu.inmite.android.plugin.butterknifezelezny;
+package com.avast.android.butterknifezelezny;
 
+import com.avast.android.butterknifezelezny.common.Utils;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import eu.inmite.android.plugin.butterknifezelezny.common.Utils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +12,7 @@ import javax.swing.*;
 /**
  * Settings UI for the plugin.
  *
- * @author David Vávra (david@inmite.eu)
+ * @author David Vávra (vavra@avast.com)
  */
 public class Settings implements Configurable {
 

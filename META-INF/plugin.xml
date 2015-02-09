@@ -1,8 +1,8 @@
 <idea-plugin version="2">
 	<id>eu.inmite.android.plugin.butterknifezelezny</id>
 	<name>Android ButterKnife Zelezny</name>
-	<version>1.1</version>
-	<vendor email="carnero@inmite.eu" url="http://inmite.eu/">inmite</vendor>
+	<version>1.2</version>
+	<vendor email="android@avast.com" url="http://github.com/avast">Avast</vendor>
 
 	<description><![CDATA[
       Plugin for generating ButterKnife injections from selected layout XMLs in activities/fragments/adapters.
@@ -10,6 +10,13 @@
 
 	<change-notes><![CDATA[
 <html>
+
+  <b>1.2</b> (2/9/2015)
+  <ul>
+  	<li>It's possible to set empty member prefix (#24)</li>
+  	<li>Fix for wrong injections in Fragment's onCreateView (#28)</li>
+  	<li>Fix for adding unnecessary injections (#26)</li>
+  </ul>
 
   <b>1.1</b> (7/21/2014)
   <ul>
@@ -39,9 +46,9 @@
 
 	<actions>
 		<action id="AddInjectionsAction"
-			class="eu.inmite.android.plugin.butterknifezelezny.InjectAction"
+			class="com.avast.android.butterknifezelezny.InjectAction"
 			text="Generate _Butterknife Injections"
-			icon="/eu/inmite/android/plugin/butterknifezelezny/icons/butterknife-zelezny.png"
+			icon="/com/avast/android/butterknifezelezny/icons/butterknife-zelezny.png"
 			description="Plugin for generating ButterKnife injections from selected layout XMLs in activities/fragments/adapters">
 
 			<keyboard-shortcut
@@ -53,6 +60,6 @@
 	</actions>
 
 	<extensions defaultExtensionNs="com.intellij">
-        <applicationConfigurable instance="eu.inmite.android.plugin.butterknifezelezny.Settings" />
+        <applicationConfigurable instance="com.avast.android.butterknifezelezny.Settings" />
 	</extensions>
 </idea-plugin>

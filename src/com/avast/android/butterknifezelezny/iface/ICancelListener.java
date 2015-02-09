@@ -1,4 +1,4 @@
-package eu.inmite.android.plugin.butterknifezelezny.iface;
+package com.avast.android.butterknifezelezny.iface;
 
 public interface ICancelListener {
 
