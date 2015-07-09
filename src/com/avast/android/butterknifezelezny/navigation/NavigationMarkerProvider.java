@@ -20,7 +20,7 @@ import static com.avast.android.butterknifezelezny.navigation.PsiHelper.hasAnnot
 public class NavigationMarkerProvider implements LineMarkerProvider {
 
     private static final String ON_CLICK_ANNOTATION = "butterknife.OnClick";
-    private static final String INJECT_VIEW_ANNOTATION = "butterknife.InjectView";
+    private static final String INJECT_VIEW_ANNOTATION = "butterknife.Bind";
 
     private static final Predicate<PsiElement> IS_FIELD_IDENTIFIER = new Predicate<PsiElement>() {
         @Override
@@ -53,7 +53,7 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
 
     /**
      * Check if element is a method annotated with <em>@OnClick</em> or a field annotated with
-     * <em>@InjectView</em> and create corresponding navigation link.
+     * <em>@Bind</em> and create corresponding navigation link.
      *
      * @return a {@link com.intellij.codeInsight.daemon.GutterIconNavigationHandler} for the
      * appropriate type, or null if we don't care about it.
