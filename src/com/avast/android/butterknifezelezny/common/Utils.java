@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
-    private static final Pattern sInjectionIDPattern = Pattern.compile("^@InjectView\\(([^\\)]+)\\)$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern sInjectionIDPattern = Pattern.compile("^@Bind\\(([^\\)]+)\\)$", Pattern.CASE_INSENSITIVE);
 
     /**
      * Is using Android SDK?
