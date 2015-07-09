@@ -20,7 +20,7 @@ import static com.avast.android.butterknifezelezny.navigation.PsiHelper.hasAnnot
 public class NavigationMarkerProvider implements LineMarkerProvider {
 
     private static final String ON_CLICK_ANNOTATION = "butterknife.OnClick";
-    private static final String INJECT_VIEW_ANNOTATION = "butterknife.Bind";
+    private static final String BIND_ANNOTATION = "butterknife.Bind";
 
     private static final Predicate<PsiElement> IS_FIELD_IDENTIFIER = new Predicate<PsiElement>() {
         @Override
@@ -37,8 +37,8 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
     };
 
     private enum AnnotationLink {
-        FIELD(INJECT_VIEW_ANNOTATION, ON_CLICK_ANNOTATION, PsiMethod.class),
-        METHOD(ON_CLICK_ANNOTATION, INJECT_VIEW_ANNOTATION, PsiField.class);
+        FIELD(BIND_ANNOTATION, ON_CLICK_ANNOTATION, PsiMethod.class),
+        METHOD(ON_CLICK_ANNOTATION, BIND_ANNOTATION, PsiField.class);
 
         private final String srcAnnotation;
         private final String dstAnnotation;
