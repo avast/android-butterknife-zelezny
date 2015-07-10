@@ -35,16 +35,18 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
     @Override
     protected boolean isValidForClass(final PsiClass targetClass) {
+        PsiClass bindClass = JavaPsiFacade.getInstance(targetClass.getProject()).findClass("butterknife.Bind", new EverythingGlobalScope(targetClass.getProject()));
         PsiClass injectViewClass = JavaPsiFacade.getInstance(targetClass.getProject()).findClass("butterknife.InjectView", new EverythingGlobalScope(targetClass.getProject()));
 
-        return (injectViewClass != null && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
+        return ((bindClass != null || injectViewClass != null) && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
     }
 
     @Override
     public boolean isValidForFile(Project project, Editor editor, PsiFile file) {
+        PsiClass bindClass = JavaPsiFacade.getInstance(project).findClass("butterknife.Bind", new EverythingGlobalScope(project));
         PsiClass injectViewClass = JavaPsiFacade.getInstance(project).findClass("butterknife.InjectView", new EverythingGlobalScope(project));
 
-        return (injectViewClass != null && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
+        return ((bindClass != null || injectViewClass != null) && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
     }
 
     @Override
