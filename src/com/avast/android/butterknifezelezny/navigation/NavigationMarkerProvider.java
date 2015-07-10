@@ -20,6 +20,7 @@ import static com.avast.android.butterknifezelezny.navigation.PsiHelper.hasAnnot
 public class NavigationMarkerProvider implements LineMarkerProvider {
 
     private static final String ON_CLICK_ANNOTATION = "butterknife.OnClick";
+    private static final String BIND_ANNOTATION = "butterknife.Bind";
     private static final String INJECT_VIEW_ANNOTATION = "butterknife.InjectView";
 
     private static final Predicate<PsiElement> IS_FIELD_IDENTIFIER = new Predicate<PsiElement>() {
@@ -37,8 +38,10 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
     };
 
     private enum AnnotationLink {
-        FIELD(INJECT_VIEW_ANNOTATION, ON_CLICK_ANNOTATION, PsiMethod.class),
-        METHOD(ON_CLICK_ANNOTATION, INJECT_VIEW_ANNOTATION, PsiField.class);
+        FIELD_V7(BIND_ANNOTATION, ON_CLICK_ANNOTATION, PsiMethod.class),
+        FIELD_V6(INJECT_VIEW_ANNOTATION, ON_CLICK_ANNOTATION, PsiMethod.class),
+        METHOD(ON_CLICK_ANNOTATION, BIND_ANNOTATION, PsiField.class);
+        //METHOD(ON_CLICK_ANNOTATION, INJECT_VIEW_ANNOTATION, PsiField.class);
 
         private final String srcAnnotation;
         private final String dstAnnotation;
@@ -53,7 +56,7 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
 
     /**
      * Check if element is a method annotated with <em>@OnClick</em> or a field annotated with
-     * <em>@InjectView</em> and create corresponding navigation link.
+     * <em>@Bind</em> or <em>@InjectView</em> and create corresponding navigation link.
      *
      * @return a {@link com.intellij.codeInsight.daemon.GutterIconNavigationHandler} for the
      * appropriate type, or null if we don't care about it.
@@ -62,7 +65,9 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
     @Override
     public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
         if (IS_FIELD_IDENTIFIER.apply(element)) {
-            return getNavigationLineMarker((PsiIdentifier)element, AnnotationLink.FIELD);
+            return getNavigationLineMarker((PsiIdentifier)element, AnnotationLink.FIELD_V7);
+        } else if (IS_FIELD_IDENTIFIER.apply(element)) {
+            return getNavigationLineMarker((PsiIdentifier)element, AnnotationLink.FIELD_V6);
         } else if (IS_METHOD_IDENTIFIER.apply(element)) {
             return getNavigationLineMarker((PsiIdentifier)element, AnnotationLink.METHOD);
         }
