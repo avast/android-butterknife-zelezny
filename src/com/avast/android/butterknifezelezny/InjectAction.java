@@ -1,5 +1,7 @@
 package com.avast.android.butterknifezelezny;
 
+import com.avast.android.butterknifezelezny.butterknife.ButterKnifeFactory;
+import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
 import com.avast.android.butterknifezelezny.common.Definitions;
 import com.avast.android.butterknifezelezny.common.Utils;
 import com.avast.android.butterknifezelezny.form.EntryList;
@@ -13,7 +15,6 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.util.PsiUtilBase;
 
 import javax.swing.*;
@@ -35,16 +36,16 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
     @Override
     protected boolean isValidForClass(final PsiClass targetClass) {
-        PsiClass injectViewClass = JavaPsiFacade.getInstance(targetClass.getProject()).findClass("butterknife.InjectView", new EverythingGlobalScope(targetClass.getProject()));
+        IButterKnife butterKnife = ButterKnifeFactory.findButterKnifeForPsiElement(targetClass.getProject(), targetClass);
 
-        return (injectViewClass != null && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
+        return (butterKnife != null && super.isValidForClass(targetClass) && Utils.findAndroidSDK() != null && !(targetClass instanceof PsiAnonymousClass));
     }
 
     @Override
     public boolean isValidForFile(Project project, Editor editor, PsiFile file) {
-        PsiClass injectViewClass = JavaPsiFacade.getInstance(project).findClass("butterknife.InjectView", new EverythingGlobalScope(project));
+        IButterKnife butterKnife = ButterKnifeFactory.findButterKnifeForPsiElement(project, file);
 
-        return (injectViewClass != null && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
+        return (butterKnife != null && super.isValidForFile(project, editor, file) && Utils.getLayoutFileFromCaret(editor, file) != null);
     }
 
     @Override
@@ -108,6 +109,8 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
         PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
         PsiClass clazz = getTargetClass(editor, file);
 
+        final IButterKnife butterKnife = ButterKnifeFactory.findButterKnifeForPsiElement(project, file);
+
         // get parent classes and check if it's an adapter
         boolean createHolder = false;
         PsiReferenceList list = getTargetClass(editor, file).getExtendsList();
@@ -127,7 +130,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
             annotations = field.getFirstChild().getText().split(" ");
 
             for (String annotation : annotations) {
-                id = Utils.getInjectionID(annotation.trim());
+                id = Utils.getInjectionID(butterKnife, annotation.trim());
                 if (!Utils.isEmptyString(id)) {
                     ids.add(id);
                 }

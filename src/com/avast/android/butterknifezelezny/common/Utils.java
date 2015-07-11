@@ -1,9 +1,11 @@
 package com.avast.android.butterknifezelezny.common;
 
 import com.avast.android.butterknifezelezny.Settings;
+import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
 import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -12,25 +14,22 @@ import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiIdentifier;
-import com.intellij.psi.XmlRecursiveElementVisitor;
+import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.ui.awt.RelativePoint;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
-
-    private static final Pattern sInjectionIDPattern = Pattern.compile("^@InjectView\\(([^\\)]+)\\)$", Pattern.CASE_INSENSITIVE);
 
     /**
      * Is using Android SDK?
@@ -262,17 +261,18 @@ public class Utils {
     /**
      * Parse ID of injected element (eg. R.id.text)
      *
+     * @param butterKnife ButterKnife version
      * @param annotation
      * @return
      */
-    public static String getInjectionID(String annotation) {
+    public static String getInjectionID(@NotNull IButterKnife butterKnife, String annotation) {
         String id = null;
 
         if (isEmptyString(annotation)) {
             return id;
         }
 
-        Matcher matcher = sInjectionIDPattern.matcher(annotation);
+        Matcher matcher = butterKnife.getFieldAnnotationPattern().matcher(annotation);
         if (matcher.find()) {
             id = matcher.group(1);
         }
@@ -288,5 +288,20 @@ public class Utils {
      */
     public static boolean isEmptyString(String text) {
         return (text == null || text.trim().length() == 0);
+    }
+
+    /**
+     * Check whether classpath of a module that corresponds to a {@link PsiElement} contains given class.
+     *
+     * @param project Project
+     * @param psiElement Element for which we check the class
+     * @param className Class name of the searched class
+     * @return True if the class is present on the classpath
+     * @since 1.3
+     */
+    public static boolean isClassAvailableForPsiFile(@NotNull Project project, @NotNull PsiElement psiElement, @NotNull String className) {
+        GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(psiElement).getModuleWithDependenciesAndLibrariesScope(false);
+        PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className, moduleScope);
+        return classInModule != null;
     }
 }
