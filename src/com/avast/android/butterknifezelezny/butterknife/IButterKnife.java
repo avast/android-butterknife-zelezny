@@ -41,6 +41,13 @@ public interface IButterKnife {
     String getFieldAnnotationCanonicalName();
 
     /**
+     * Canonical class name of the @OnClick method annotation
+     *
+     * @return Canonical name of the @OnClick annotation class
+     */
+    String getOnClickAnnotationCanonicalName();
+
+    /**
      * Package name of the ButterKnife version
      *
      * @return Package name

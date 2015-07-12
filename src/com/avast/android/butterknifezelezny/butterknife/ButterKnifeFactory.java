@@ -26,6 +26,10 @@ public class ButterKnifeFactory {
             new ButterKnife6()
     };
 
+    private ButterKnifeFactory() {
+        // no construction
+    }
+
     /**
      * Find ButterKnife that is available for given {@link PsiElement} in the {@link Project}.
      * Note that it check if ButterKnife is available in the module.
@@ -43,4 +47,7 @@ public class ButterKnifeFactory {
         return null;
     }
 
+    public static IButterKnife[] getSupportedButterKnives() {
+        return sSupportedButterKnives;
+    }
 }
