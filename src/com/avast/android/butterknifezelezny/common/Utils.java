@@ -90,28 +90,39 @@ public class Utils {
 
         Project project = element.getProject();
         String name = String.format("%s.xml", element.getText());
-        PsiFile[] files = FilenameIndex.getFilesByName(project, name, new EverythingGlobalScope(project));
+
+        // restricting the search to the current module - searching the whole project could return wrong layouts
+        GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(element).getModuleWithDependenciesAndLibrariesScope(false);
+        PsiFile[] files = FilenameIndex.getFilesByName(project, name, moduleScope);
         if (files.length <= 0) {
             return null; //no matching files
         }
 
+        // TODO - we have a problem here - we still can have multiple layouts (some coming from a dependency)
+        // we need to resolve R class properly and find the proper layout for the R class
         return files[0];
     }
 
     /**
      * Try to find layout XML file by name
      *
+     * @param file
      * @param project
      * @param fileName
      * @return
      */
-    public static PsiFile findLayoutResource(Project project, String fileName) {
+    public static PsiFile findLayoutResource(PsiFile file, Project project, String fileName) {
         String name = String.format("%s.xml", fileName);
-        PsiFile[] files = FilenameIndex.getFilesByName(project, name, new EverythingGlobalScope(project));
+        // restricting the search to the module of layout that includes the layout we are seaching for
+        // - searching the whole project could return wrong layouts
+        GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(file).getModuleWithDependenciesAndLibrariesScope(false);
+        PsiFile[] files = FilenameIndex.getFilesByName(project, name, moduleScope);
         if (files.length <= 0) {
             return null; //no matching files
         }
 
+        // TODO - we have a problem here - we still can have multiple layouts (some coming from a dependency)
+        // we need to resolve R class properly and find the proper layout for the R class
         return files[0];
     }
 
@@ -148,7 +159,7 @@ public class Utils {
 
                         if (layout != null) {
                             Project project = file.getProject();
-                            PsiFile include = findLayoutResource(project, getLayoutName(layout.getValue()));
+                            PsiFile include = findLayoutResource(file, project, getLayoutName(layout.getValue()));
 
                             if (include != null) {
                                 getIDsFromLayout(include, elements);

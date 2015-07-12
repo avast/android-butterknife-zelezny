@@ -73,6 +73,10 @@ public class Element {
         sb.append(Utils.getPrefix());
 
         for (int i = 0; i < words.length; i++) {
+            if (words[i].isEmpty()) {
+                // fixing issues with double underscores - see issue #40
+                continue;
+            }
             String[] idTokens = words[i].split("\\.");
             char[] chars = idTokens[idTokens.length - 1].toCharArray();
             if (i > 0 || !Utils.isEmptyString(Utils.getPrefix())) {
