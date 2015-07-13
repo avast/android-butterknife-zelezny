@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -90,12 +89,22 @@ public class Utils {
 
         Project project = element.getProject();
         String name = String.format("%s.xml", element.getText());
+        return resolveLayoutResourceFile(element, project, name);
 
+
+    }
+
+    private static PsiFile resolveLayoutResourceFile(PsiElement element, Project project, String name) {
         // restricting the search to the current module - searching the whole project could return wrong layouts
         GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(element).getModuleWithDependenciesAndLibrariesScope(false);
         PsiFile[] files = FilenameIndex.getFilesByName(project, name, moduleScope);
         if (files.length <= 0) {
-            return null; //no matching files
+            // fallback to search through the whole project
+            // useful when the project is not properly configured - when the resource directory is not configured
+            files = FilenameIndex.getFilesByName(project, name, new EverythingGlobalScope(project));
+            if (files.length <= 0) {
+                return null; //no matching files
+            }
         }
 
         // TODO - we have a problem here - we still can have multiple layouts (some coming from a dependency)
@@ -114,16 +123,7 @@ public class Utils {
     public static PsiFile findLayoutResource(PsiFile file, Project project, String fileName) {
         String name = String.format("%s.xml", fileName);
         // restricting the search to the module of layout that includes the layout we are seaching for
-        // - searching the whole project could return wrong layouts
-        GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(file).getModuleWithDependenciesAndLibrariesScope(false);
-        PsiFile[] files = FilenameIndex.getFilesByName(project, name, moduleScope);
-        if (files.length <= 0) {
-            return null; //no matching files
-        }
-
-        // TODO - we have a problem here - we still can have multiple layouts (some coming from a dependency)
-        // we need to resolve R class properly and find the proper layout for the R class
-        return files[0];
+        return resolveLayoutResourceFile(file, project, name);
     }
 
     /**
