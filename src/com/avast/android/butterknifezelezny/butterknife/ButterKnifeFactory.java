@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.EverythingGlobalScope;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Factory for obtaining proper ButterKnife version.
@@ -38,9 +39,28 @@ public class ButterKnifeFactory {
      * @param psiElement Element for which we are searching for ButterKnife
      * @return ButterKnife
      */
+    @Nullable
     public static IButterKnife findButterKnifeForPsiElement(@NotNull Project project, @NotNull PsiElement psiElement) {
         for (IButterKnife butterKnife : sSupportedButterKnives) {
             if (Utils.isClassAvailableForPsiFile(project, psiElement, butterKnife.getDistinctClassName())) {
+                return butterKnife;
+            }
+        }
+        // we haven't found any version of ButterKnife in the module, let's fallback to the whole project
+        return findButterKnifeForProject(project);
+    }
+
+    /**
+     * Find ButterKnife that is available in the {@link Project}.
+     *
+     * @param project Project
+     * @return ButterKnife
+     * @since 1.3.1
+     */
+    @Nullable
+    private static IButterKnife findButterKnifeForProject(@NotNull Project project) {
+        for (IButterKnife butterKnife : sSupportedButterKnives) {
+            if (Utils.isClassAvailableForProject(project, butterKnife.getDistinctClassName())) {
                 return butterKnife;
             }
         }

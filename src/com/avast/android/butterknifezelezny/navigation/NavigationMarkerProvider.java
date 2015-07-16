@@ -67,7 +67,7 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
         }
 
         @Nullable
-        public static ButterKnifeLink getButterKnifeLink(@NotNull IButterKnife butterKnife,
+        public static ButterKnifeLink getButterKnifeLink(@Nullable IButterKnife butterKnife,
                                                   @NotNull Predicate<PsiElement> predicate) {
             Map<Predicate<PsiElement>, ButterKnifeLink> subMap = sMap.get(butterKnife);
             if (subMap != null) {
@@ -88,6 +88,9 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
     @Override
     public LineMarkerInfo getLineMarkerInfo(@NotNull final PsiElement element) {
         final IButterKnife butterKnife = ButterKnifeFactory.findButterKnifeForPsiElement(element.getProject(), element);
+        if (butterKnife == null) {
+            return null;
+        }
         if (IS_FIELD_IDENTIFIER.apply(element)) {
             return getNavigationLineMarker((PsiIdentifier)element,
                 ButterKnifeLink.getButterKnifeLink(butterKnife, IS_FIELD_IDENTIFIER));
