@@ -5,6 +5,7 @@ import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
 import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
@@ -311,7 +312,11 @@ public class Utils {
      * @since 1.3
      */
     public static boolean isClassAvailableForPsiFile(@NotNull Project project, @NotNull PsiElement psiElement, @NotNull String className) {
-        GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(psiElement).getModuleWithDependenciesAndLibrariesScope(false);
+        Module module = ModuleUtil.findModuleForPsiElement(psiElement);
+        if (module == null) {
+            return false;
+        }
+        GlobalSearchScope moduleScope = module.getModuleWithDependenciesAndLibrariesScope(false);
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className, moduleScope);
         return classInModule != null;
     }

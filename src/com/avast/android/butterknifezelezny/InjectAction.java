@@ -110,6 +110,9 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
         PsiClass clazz = getTargetClass(editor, file);
 
         final IButterKnife butterKnife = ButterKnifeFactory.findButterKnifeForPsiElement(project, file);
+        if (butterKnife == null) {
+            return;
+        }
 
         // get parent classes and check if it's an adapter
         boolean createHolder = false;
