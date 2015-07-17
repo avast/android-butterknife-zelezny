@@ -191,7 +191,11 @@ public class Utils {
                         name = clazz.getValue();
                     }
 
-                    elements.add(new Element(name, value));
+                    try {
+                        elements.add(new Element(name, value));
+                    } catch (IllegalArgumentException e) {
+                        // TODO log
+                    }
                 }
             }
         });

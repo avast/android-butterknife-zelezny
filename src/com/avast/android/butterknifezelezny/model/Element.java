@@ -18,14 +18,25 @@ public class Element {
     public boolean isValid = false;
     public boolean used = true;
 
+    /**
+     * Constructs new element
+     *
+     * @param name Class name of the view
+     * @param id Value in android:id attribute
+     * @throws IllegalArgumentException When the arguments are invalid
+     */
     public Element(String name, String id) {
         // id
         final Matcher matcher = sIdPattern.matcher(id);
-        if (matcher.find() && matcher.groupCount() > 0) {
+        if (matcher.find() && matcher.groupCount() > 1) {
             this.id = matcher.group(2);
 
             String androidNS = matcher.group(1);
             this.isAndroidNS = !(androidNS == null || androidNS.length() == 0);
+        }
+
+        if (this.id == null) {
+            throw new IllegalArgumentException("Invalid format of view id");
         }
 
         // name
