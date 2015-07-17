@@ -97,9 +97,13 @@ public class Utils {
 
     private static PsiFile resolveLayoutResourceFile(PsiElement element, Project project, String name) {
         // restricting the search to the current module - searching the whole project could return wrong layouts
-        GlobalSearchScope moduleScope = ModuleUtil.findModuleForPsiElement(element).getModuleWithDependenciesAndLibrariesScope(false);
-        PsiFile[] files = FilenameIndex.getFilesByName(project, name, moduleScope);
-        if (files.length <= 0) {
+        Module module = ModuleUtil.findModuleForPsiElement(element);
+        PsiFile[] files = null;
+        if (module != null) {
+            GlobalSearchScope moduleScope = module.getModuleWithDependenciesAndLibrariesScope(false);
+            files = FilenameIndex.getFilesByName(project, name, moduleScope);
+        }
+        if (files == null || files.length <= 0) {
             // fallback to search through the whole project
             // useful when the project is not properly configured - when the resource directory is not configured
             files = FilenameIndex.getFilesByName(project, name, new EverythingGlobalScope(project));

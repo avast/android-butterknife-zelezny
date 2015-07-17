@@ -160,7 +160,11 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     private boolean containsButterKnifeInjectLine(PsiMethod method, String line) {
-        PsiStatement[] statements = method.getBody().getStatements();
+        final PsiCodeBlock body = method.getBody();
+        if (body == null) {
+            return false;
+        }
+        PsiStatement[] statements = body.getStatements();
         for (PsiStatement psiStatement : statements) {
             String statementAsString = psiStatement.getText();
             if (psiStatement instanceof PsiExpressionStatement && (statementAsString.contains(line))) {

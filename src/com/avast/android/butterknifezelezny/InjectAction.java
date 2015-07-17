@@ -76,6 +76,9 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
     public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder) {
         PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
+        if (file == null) {
+            return;
+        }
         PsiFile layout = Utils.getLayoutFileFromCaret(editor, file);
 
         closeDialog();
@@ -107,19 +110,24 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
     protected void showDialog(Project project, Editor editor, ArrayList<Element> elements) {
         PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
+        if (file == null) {
+            return;
+        }
         PsiClass clazz = getTargetClass(editor, file);
 
         final IButterKnife butterKnife = ButterKnifeFactory.findButterKnifeForPsiElement(project, file);
-        if (butterKnife == null) {
+        if (clazz == null || butterKnife == null) {
             return;
         }
 
         // get parent classes and check if it's an adapter
         boolean createHolder = false;
-        PsiReferenceList list = getTargetClass(editor, file).getExtendsList();
-        for (PsiJavaCodeReferenceElement element : list.getReferenceElements()) {
-            if (Definitions.adapters.contains(element.getQualifiedName())) {
-                createHolder = true;
+        PsiReferenceList list = clazz.getExtendsList();
+        if (list != null) {
+            for (PsiJavaCodeReferenceElement element : list.getReferenceElements()) {
+                if (Definitions.adapters.contains(element.getQualifiedName())) {
+                    createHolder = true;
+                }
             }
         }
 

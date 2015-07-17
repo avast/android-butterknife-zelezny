@@ -116,10 +116,17 @@ public class NavigationMarkerProvider implements LineMarkerProvider {
         if (srcAnnotation != null) {
             final PsiAnnotationParameterList annotationParameters = srcAnnotation.getParameterList();
             if (annotationParameters.getAttributes().length > 0) {
-                final String resourceId = annotationParameters.getAttributes()[0].getValue().getText();
+                final PsiAnnotationMemberValue value = annotationParameters.getAttributes()[0].getValue();
+                if (value == null) {
+                    return null;
+                }
+                final String resourceId = value.getText();
 
-                final PsiClass dstAnnotationClass = JavaPsiFacade.getInstance(element.getProject()).findClass(link.dstAnnotation,
-                    ProjectScope.getLibrariesScope(element.getProject()));
+                final PsiClass dstAnnotationClass = JavaPsiFacade.getInstance(element.getProject())
+                    .findClass(link.dstAnnotation, ProjectScope.getLibrariesScope(element.getProject()));
+                if (dstAnnotationClass == null) {
+                    return null;
+                }
 
                 final ClassMemberProcessor processor = new ClassMemberProcessor(resourceId, link);
 

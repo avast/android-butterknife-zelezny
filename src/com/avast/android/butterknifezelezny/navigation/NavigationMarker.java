@@ -10,6 +10,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMember;
+import com.intellij.psi.PsiTypeElement;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeHighlighting.Pass.UPDATE_ALL;
@@ -40,8 +41,8 @@ class NavigationMarker extends LineMarkerInfo<PsiElement> {
 
         @NotNull
         NavigationMarker build() {
-            final TextRange textRange = source instanceof PsiField ?
-                ((PsiField)source).getTypeElement().getTextRange() : source.getTextRange();
+            final PsiTypeElement typeElement = source instanceof PsiField ? ((PsiField)source).getTypeElement() : null;
+            final TextRange textRange = typeElement != null ? typeElement.getTextRange() : source.getTextRange();
             return new NavigationMarker(source, destination, textRange);
         }
     }
