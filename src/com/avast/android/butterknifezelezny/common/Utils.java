@@ -300,6 +300,27 @@ public class Utils {
         return id;
     }
 
+
+    public static int getInjectCount(ArrayList<Element> elements) {
+        int cnt = 0;
+        for (Element element : elements) {
+            if (element.used) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
+    public static int getClickCount(ArrayList<Element> elements) {
+        int cnt = 0;
+        for (Element element : elements) {
+            if (element.isClick) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
     /**
      * Easier way to check if string is empty
      *
