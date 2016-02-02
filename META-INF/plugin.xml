@@ -1,7 +1,7 @@
 <idea-plugin version="2">
 	<id>eu.inmite.android.plugin.butterknifezelezny</id>
 	<name>Android ButterKnife Zelezny</name>
-	<version>1.3.3-SNAPSHOT</version>
+	<version>1.4.0</version>
 	<vendor email="android@avast.com" url="http://github.com/avast">Avast</vendor>
 
 	<description><![CDATA[
@@ -11,9 +11,10 @@
 	<change-notes><![CDATA[
 <html>
 
-  <b>1.3.3-SNAPSHOT</b>
+  <b>1.4.0</b>
   <ul>
-    <li>Fixed plugin crash (#62)</li>
+    <li>Support for @OnClick (#73)</li>
+    <li>Fixed plugin crashes (#62 and #52)</li>
   </ul>
 
   <b>1.3.2</b> (7/17/2015)

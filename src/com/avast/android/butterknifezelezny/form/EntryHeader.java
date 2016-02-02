@@ -19,7 +19,7 @@ public class EntryHeader extends JPanel {
         mID.setPreferredSize(new Dimension(100, 26));
         mID.setFont(new Font(mID.getFont().getFontName(), Font.BOLD, mID.getFont().getSize()));
 
-        mEvent = new JLabel("Click");
+        mEvent = new JLabel("OnClick");
         mEvent.setPreferredSize(new Dimension(100, 26));
         mEvent.setFont(new Font(mEvent.getFont().getFontName(), Font.BOLD, mEvent.getFont().getSize()));
 
