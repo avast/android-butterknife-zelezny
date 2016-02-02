@@ -334,9 +334,9 @@ public class Utils {
     /**
      * Check whether classpath of a module that corresponds to a {@link PsiElement} contains given class.
      *
-     * @param project Project
+     * @param project    Project
      * @param psiElement Element for which we check the class
-     * @param className Class name of the searched class
+     * @param className  Class name of the searched class
      * @return True if the class is present on the classpath
      * @since 1.3
      */
@@ -349,18 +349,19 @@ public class Utils {
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className, moduleScope);
         return classInModule != null;
     }
+
     /**
      * Check whether classpath of a the whole project contains given class.
      * This is only fallback for wrongly setup projects.
      *
-     * @param project Project
+     * @param project   Project
      * @param className Class name of the searched class
      * @return True if the class is present on the classpath
      * @since 1.3.1
      */
     public static boolean isClassAvailableForProject(@NotNull Project project, @NotNull String className) {
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
-            new EverythingGlobalScope(project));
+                new EverythingGlobalScope(project));
         return classInModule != null;
     }
 }

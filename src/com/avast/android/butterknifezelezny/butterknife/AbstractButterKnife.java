@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractButterKnife implements IButterKnife {
 
-    private final Pattern mFieldAnnotationPattern = Pattern.compile("^@" + getFieldAnnotationSimpleName() + "\\(([^\\)]+)\\)$", Pattern.CASE_INSENSITIVE);
     private static final String mPackageName = "butterknife";
+    private final Pattern mFieldAnnotationPattern = Pattern.compile("^@" + getFieldAnnotationSimpleName() + "\\(([^\\)]+)\\)$", Pattern.CASE_INSENSITIVE);
     private final String mFieldAnnotationCanonicalName = getPackageName() + "." + getFieldAnnotationSimpleName();
     private final String mCanonicalBindStatement = getPackageName() + "." + getSimpleBindStatement();
     private final String mCanonicalUnbindStatement = getPackageName() + "." + getSimpleUnbindStatement();

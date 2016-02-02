@@ -11,7 +11,7 @@ public class PsiHelper {
     }
 
     public static boolean hasAnnotationWithValue(@NotNull final PsiModifierListOwner element, @NotNull final String
-        annotation, @NotNull final String value) {
+            annotation, @NotNull final String value) {
         final PsiAnnotation psiAnnotation = getAnnotation(element, annotation);
         if (psiAnnotation != null && annotation.equals(psiAnnotation.getQualifiedName())) {
             final PsiNameValuePair[] attributes = psiAnnotation.getParameterList().getAttributes();
@@ -29,7 +29,7 @@ public class PsiHelper {
     @Nullable
     public static PsiAnnotation getAnnotation(@NotNull final PsiElement element, @NotNull final String annotation) {
         if (element instanceof PsiModifierListOwner) {
-            final PsiAnnotation[] annotations = AnnotationUtil.getAllAnnotations((PsiModifierListOwner)element, false, null);
+            final PsiAnnotation[] annotations = AnnotationUtil.getAllAnnotations((PsiModifierListOwner) element, false, null);
             for (PsiAnnotation psiAnnotation : annotations) {
                 if (annotation.equals(psiAnnotation.getQualifiedName())) {
                     return psiAnnotation;
