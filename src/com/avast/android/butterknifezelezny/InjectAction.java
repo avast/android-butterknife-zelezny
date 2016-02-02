@@ -83,28 +83,13 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
         closeDialog();
 
-        // count selected elements
-        int cnt = 0;
-        for (Element element : elements) {
-            if (element.used) {
-                cnt++;
-            }
-        }
 
-        if (cnt > 0) { // generate injections
-            if (layout == null) {
-                return;
-            }
+        if (Utils.getInjectCount(elements) > 0 || Utils.getClickCount(elements) > 0) { // generate injections
             new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder).execute();
-
-            if (cnt == 1) {
-                Utils.showInfoNotification(project, "One injection added to " + file.getName());
-            } else {
-                Utils.showInfoNotification(project, String.valueOf(cnt) + " injections added to " + file.getName());
-            }
         } else { // just notify user about no element selected
             Utils.showInfoNotification(project, "No injection was selected");
         }
+
     }
 
     public void onCancel() {

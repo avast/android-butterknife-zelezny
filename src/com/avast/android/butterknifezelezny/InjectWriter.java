@@ -49,8 +49,14 @@ public class InjectWriter extends WriteCommandAction.Simple {
         if (mCreateHolder) {
             generateAdapter(butterKnife);
         } else {
-            generateFields(butterKnife);
+            if (Utils.getInjectCount(mElements) > 0) {
+                generateFields(butterKnife);
+            }
             generateInjects(butterKnife);
+            if (Utils.getClickCount(mElements) > 0) {
+                generateClick();
+            }
+            Utils.showInfoNotification(mProject, String.valueOf(Utils.getInjectCount(mElements)) + " injections and " + String.valueOf(Utils.getClickCount(mElements)) + " onClick added to " + mFile.getName());
         }
 
         // reformat class
@@ -58,6 +64,42 @@ public class InjectWriter extends WriteCommandAction.Simple {
         styleManager.optimizeImports(mFile);
         styleManager.shortenClassReferences(mClass);
         new ReformatCodeProcessor(mProject, mClass.getContainingFile(), null, false).runWithoutProgress();
+    }
+
+    protected void generateClick() {
+        StringBuilder method = new StringBuilder();
+        if (Utils.getClickCount(mElements) == 1) {
+            method.append("@butterknife.OnClick(");
+            for (Element element : mElements) {
+                if (element.isClick) {
+                    method.append(element.getFullID() + ")");
+                }
+            }
+            method.append("public void onClick() {}");
+        } else {
+            method.append("@butterknife.OnClick({");
+            int currentCount = 0;
+            for (Element element : mElements) {
+                if (element.isClick) {
+                    currentCount++;
+                    if (currentCount == Utils.getClickCount(mElements)) {
+                        method.append(element.getFullID() + "})");
+                    } else {
+                        method.append(element.getFullID() + ",");
+                    }
+                }
+            }
+            method.append("public void onClick(android.view.View view) {switch (view.getId()){");
+            for (Element element : mElements) {
+                if (element.isClick) {
+                    method.append("case " + element.getFullID() + ": break;");
+                }
+            }
+            method.append("}}");
+        }
+
+        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+
     }
 
     /**
@@ -123,7 +165,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
         comment.append(" * @author\tButterKnifeZelezny, plugin for Android Studio by Avast Developers (http://github.com/avast)\n");
         comment.append("*/");
 
-        mClass.addBefore(mFactory.createCommentFromText(comment.toString(), mClass), mClass.findInnerClassByName(Utils.getViewHolderClassName(), true));
+//        mClass.addBefore(mFactory.createCommentFromText(comment.toString(), mClass), mClass.findInnerClassByName(Utils.getViewHolderClassName(), true));
         mClass.addBefore(mFactory.createKeyword("static", mClass), mClass.findInnerClassByName(Utils.getViewHolderClassName(), true));
     }
 
@@ -230,7 +272,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
                 mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
             } else {
                 PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
-                if (!containsButterKnifeInjectLine(onCreateView,  butterKnife.getSimpleBindStatement())) {
+                if (!containsButterKnifeInjectLine(onCreateView, butterKnife.getSimpleBindStatement())) {
                     for (PsiStatement statement : onCreateView.getBody().getStatements()) {
                         if (statement instanceof PsiReturnStatement) {
                             String returnValue = ((PsiReturnStatement) statement).getReturnValue().getText();
