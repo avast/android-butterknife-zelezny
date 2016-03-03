@@ -5,12 +5,17 @@ import java.awt.*;
 
 public class EntryHeader extends JPanel {
 
+    protected JCheckBox mAllCheck;
     protected JLabel mType;
     protected JLabel mID;
     protected JLabel mEvent;
     protected JLabel mName;
 
     public EntryHeader() {
+        mAllCheck = new JCheckBox();
+        mAllCheck.setPreferredSize(new Dimension(40, 26));
+        mAllCheck.setSelected(false);
+
         mType = new JLabel("Element");
         mType.setPreferredSize(new Dimension(100, 26));
         mType.setFont(new Font(mType.getFont().getFontName(), Font.BOLD, mType.getFont().getSize()));
@@ -28,7 +33,9 @@ public class EntryHeader extends JPanel {
         mName.setFont(new Font(mName.getFont().getFontName(), Font.BOLD, mName.getFont().getSize()));
 
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-        add(Box.createRigidArea(new Dimension(52, 0)));
+        add(Box.createRigidArea(new Dimension(1, 0)));
+        add(mAllCheck);
+        add(Box.createRigidArea(new Dimension(11, 0)));
         add(mType);
         add(Box.createRigidArea(new Dimension(12, 0)));
         add(mID);
@@ -37,5 +44,13 @@ public class EntryHeader extends JPanel {
         add(Box.createRigidArea(new Dimension(22, 0)));
         add(mName);
         add(Box.createHorizontalGlue());
+    }
+
+    public JCheckBox getAllCheck() {
+        return mAllCheck;
+    }
+
+    public boolean isAllChecked() {
+        return mAllCheck.isSelected();
     }
 }
