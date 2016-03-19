@@ -4,4 +4,10 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              tools:context=".MainActivity"
-             tools:ignore="MergeRootFrame"/>
+             tools:ignore="MergeRootFrame">
+
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/main_activity_textview"/>
+    
+</FrameLayout>
