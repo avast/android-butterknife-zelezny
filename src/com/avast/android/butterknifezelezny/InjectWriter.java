@@ -291,23 +291,25 @@ public class InjectWriter extends WriteCommandAction.Simple {
                 }
             }
 
-            // Insert ButterKnife.reset()/ButterKnife.unbind()
+            // Insert ButterKnife.reset()/ButterKnife.unbind()/unbinder.unbind()
             // Create onDestroyView method if it's missing
-            if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
-                StringBuilder method = new StringBuilder();
-                method.append("@Override public void onDestroyView() {\n");
-                method.append("super.onDestroyView();\n");
-                method.append(butterKnife.getCanonicalUnbindStatement());
-                method.append("(this);\n");
-                method.append("}");
+            if (butterKnife.isUnbindSupported()) {
+                if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
+                    StringBuilder method = new StringBuilder();
+                    method.append("@Override public void onDestroyView() {\n");
+                    method.append("super.onDestroyView();\n");
+                    method.append(butterKnife.getCanonicalUnbindStatement());
+                    method.append("(this);\n");
+                    method.append("}");
 
-                mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
-            } else {
-                PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
-                if (!containsButterKnifeInjectLine(onDestroyView, butterKnife.getSimpleUnbindStatement())) {
-                    onDestroyView.getBody().addBefore(
+                    mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+                } else {
+                    PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
+                    if (!containsButterKnifeInjectLine(onDestroyView, butterKnife.getSimpleUnbindStatement())) {
+                        onDestroyView.getBody().addBefore(
                             mFactory.createStatementFromText(butterKnife.getCanonicalUnbindStatement() + "(this);",
-                                    mClass), onDestroyView.getBody().getLastBodyElement());
+                                mClass), onDestroyView.getBody().getLastBodyElement());
+                    }
                 }
             }
         }

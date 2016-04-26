@@ -20,7 +20,8 @@ public class ButterKnifeFactory {
      */
     private static IButterKnife[] sSupportedButterKnives = new IButterKnife[]{
             new ButterKnife7(),
-            new ButterKnife6()
+            new ButterKnife6(),
+            new ButterKnife8()
     };
 
     private ButterKnifeFactory() {

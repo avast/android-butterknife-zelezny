@@ -69,6 +69,13 @@ public interface IButterKnife {
     String getCanonicalBindStatement();
 
     /**
+     * Check whether android-butterknife-zelezny supports generating unbind for this version of ButterKnife.
+     * @return True if unbind generation is supported.
+     * @since 1.5.0
+     */
+    boolean isUnbindSupported();
+
+    /**
      * Statement to unbind/reset view instances from the fields
      *
      * @return Unbind/reset statement

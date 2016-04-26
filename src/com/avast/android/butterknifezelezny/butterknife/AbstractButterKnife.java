@@ -42,6 +42,11 @@ public abstract class AbstractButterKnife implements IButterKnife {
     }
 
     @Override
+    public boolean isUnbindSupported() {
+        return true;
+    }
+
+    @Override
     public String getCanonicalUnbindStatement() {
         return mCanonicalUnbindStatement;
     }
