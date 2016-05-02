@@ -1,7 +1,10 @@
 package com.avast.android.butterknifezelezny.butterknife;
 
 /**
+ * ButterKnife version 8
+ *
  * @author Tomáš Kypta
+ * @since 1.5.0
  */
 public class ButterKnife8 extends AbstractButterKnife {
 
@@ -13,7 +16,7 @@ public class ButterKnife8 extends AbstractButterKnife {
 
     @Override
     public String getVersion() {
-        return "8.0.0";
+        return "8.0.1";
     }
 
     @Override

@@ -1,7 +1,7 @@
 <idea-plugin version="2">
 	<id>eu.inmite.android.plugin.butterknifezelezny</id>
 	<name>Android ButterKnife Zelezny</name>
-	<version>1.5.0-SNAPSHOT</version>
+	<version>1.5.0</version>
 	<vendor email="android@avast.com" url="http://github.com/avast">Avast</vendor>
 
 	<description><![CDATA[
@@ -11,9 +11,10 @@
 	<change-notes><![CDATA[
 <html>
 
-  <b>1.5.0-SNAPSHOT</b>
+  <b>1.5.0</b> (5/2/2015)
   <ul>
     <li>Support for ButterKnife 8.0.0 (#93)</li>
+    <li>Added &quot;select/deselect all&quot; checkbox (#89)</li>
   </ul>
 
   <b>1.4.0</b> (2/2/2016)
