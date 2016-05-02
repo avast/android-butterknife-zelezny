@@ -1,6 +1,7 @@
 package com.avast.android.butterknifezelezny.form;
 
 
+import com.avast.android.butterknifezelezny.iface.OnCheckBoxStateChangedListener;
 import com.avast.android.butterknifezelezny.model.Element;
 
 import javax.swing.*;
@@ -16,6 +17,7 @@ public class Entry extends JPanel {
     protected EntryList mParent;
     protected Element mElement;
     protected ArrayList<String> mGeneratedIDs;
+    protected OnCheckBoxStateChangedListener mListener;
     // ui
     protected JCheckBox mCheck;
     protected JLabel mType;
@@ -24,6 +26,14 @@ public class Entry extends JPanel {
     protected JTextField mName;
     protected Color mNameDefaultColor;
     protected Color mNameErrorColor = new Color(0x880000);
+
+    public JCheckBox getCheck() {
+        return mCheck;
+    }
+
+    public void setListener(final OnCheckBoxStateChangedListener onStateChangedListener) {
+        this.mListener = onStateChangedListener;
+    }
 
     public Entry(EntryList parent, Element element, ArrayList<String> ids) {
         mElement = element;
@@ -102,6 +112,10 @@ public class Entry extends JPanel {
             mType.setEnabled(false);
             mID.setEnabled(false);
             mName.setEnabled(false);
+        }
+
+        if (mListener != null) {
+            mListener.changeState(mCheck.isSelected());
         }
     }
 
