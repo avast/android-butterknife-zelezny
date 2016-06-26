@@ -36,4 +36,14 @@ public class ButterKnife7 extends AbstractButterKnife {
     public String getSimpleUnbindStatement() {
         return mSimpleUnbindStatement;
     }
+
+    @Override
+    public boolean isUsingUnbinder() {
+        return false;
+    }
+
+    @Override
+    public String getUnbinderClassSimpleName() {
+        return null;
+    }
 }

@@ -10,9 +10,8 @@ public class ButterKnife8 extends AbstractButterKnife {
 
     private static final String mFieldAnnotationSimpleName = "BindView";
     private static final String mSimpleBindStatement = "ButterKnife.bind";
-    // not-yet-supported
-    private static final String mUnbindableBindStatement = "unbinder = ButterKnife.bind";
-    private static final String mSimpleUnbindStatement = "unbinder.unbind";
+    private static final String mSimpleUnbindStatement = ".unbind";
+    private static final String mUnbinderClassSimpleName = "Unbinder";
 
     @Override
     public String getVersion() {
@@ -35,11 +34,6 @@ public class ButterKnife8 extends AbstractButterKnife {
     }
 
     @Override
-    public boolean isUnbindSupported() {
-        return false;
-    }
-
-    @Override
     public String getSimpleUnbindStatement() {
         return mSimpleUnbindStatement;
     }
@@ -47,5 +41,10 @@ public class ButterKnife8 extends AbstractButterKnife {
     @Override
     public String getCanonicalUnbindStatement() {
         return getSimpleUnbindStatement();
+    }
+
+    @Override
+    public String getUnbinderClassSimpleName() {
+        return mUnbinderClassSimpleName;
     }
 }

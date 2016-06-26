@@ -2,6 +2,8 @@ package com.avast.android.butterknifezelezny.butterknife;
 
 import java.util.regex.Pattern;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Abstraction of ButterKnife versions
  *
@@ -75,6 +77,32 @@ public interface IButterKnife {
      * @since 1.5.0
      */
     boolean isUnbindSupported();
+
+    /**
+     * Check whether ButterKnife is using an unbinder in this version.
+     * Unbinder appeared in version 8 of ButterKnife.
+     *
+     * @return True if the version is using an unbinder.
+     * @since 1.6.0
+     */
+    boolean isUsingUnbinder();
+
+    /**
+     * Get simple name of the unbinder class.
+     *
+     * @return Simple name of the unbinder class.
+     * @since 1.6.0
+     */
+    @Nullable
+    String getUnbinderClassSimpleName();
+
+    /**
+     * Get canonical name of the unbinder class.
+     *
+     * @return Canonical name of the unbinder class.
+     * @since 1.6.0
+     */
+    String getUnbinderClassCanonicalName();
 
     /**
      * Statement to unbind/reset view instances from the fields
