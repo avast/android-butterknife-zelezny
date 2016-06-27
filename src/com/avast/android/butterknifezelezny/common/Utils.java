@@ -4,6 +4,7 @@ import com.avast.android.butterknifezelezny.Settings;
 import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
 import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 public class Utils {
+
+    private static final Logger log = Logger.getInstance(Utils.class);
 
     /**
      * Is using Android SDK?
@@ -73,6 +76,7 @@ public class Utils {
      * @return
      */
     public static PsiFile findLayoutResource(PsiElement element) {
+        log.info("Finding layout resource for element: " + element.getText());
         if (element == null) {
             return null; // nothing to be used
         }
@@ -91,8 +95,6 @@ public class Utils {
         Project project = element.getProject();
         String name = String.format("%s.xml", element.getText());
         return resolveLayoutResourceFile(element, project, name);
-
-
     }
 
     private static PsiFile resolveLayoutResourceFile(PsiElement element, Project project, String name) {
@@ -100,8 +102,14 @@ public class Utils {
         Module module = ModuleUtil.findModuleForPsiElement(element);
         PsiFile[] files = null;
         if (module != null) {
-            GlobalSearchScope moduleScope = module.getModuleWithDependenciesAndLibrariesScope(false);
+            // first omit libraries, it might cause issues like (#103)
+            GlobalSearchScope moduleScope = module.getModuleWithDependenciesScope();
             files = FilenameIndex.getFilesByName(project, name, moduleScope);
+            if (files == null || files.length <= 0) {
+                // now let's do a fallback including the libraries
+                moduleScope = module.getModuleWithDependenciesAndLibrariesScope(false);
+                files = FilenameIndex.getFilesByName(project, name, moduleScope);
+            }
         }
         if (files == null || files.length <= 0) {
             // fallback to search through the whole project
@@ -114,6 +122,9 @@ public class Utils {
 
         // TODO - we have a problem here - we still can have multiple layouts (some coming from a dependency)
         // we need to resolve R class properly and find the proper layout for the R class
+        for (PsiFile file : files) {
+            log.info("Resolved layout resource file for name [" + name + "]: " + file.getVirtualFile());
+        }
         return files[0];
     }
 

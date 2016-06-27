@@ -12,6 +12,7 @@ import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 public class InjectAction extends BaseGenerateAction implements IConfirmListener, ICancelListener {
 
     protected JFrame mDialog;
+    protected static final Logger log = Logger.getInstance(InjectAction.class);
 
     @SuppressWarnings("unused")
     public InjectAction() {
@@ -65,6 +67,8 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
             Utils.showErrorNotification(project, "No layout found");
             return; // no layout found
         }
+
+        log.info("Layout file: " + layout.getVirtualFile());
 
         ArrayList<Element> elements = Utils.getIDsFromLayout(layout);
         if (!elements.isEmpty()) {

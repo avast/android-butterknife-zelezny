@@ -14,6 +14,7 @@
   <b>1.6.0-SNAPSHOT</b>
   <ul>
     <li>Added support for Unbinder in ButterKnife 8 (#97)</li>
+    <li>Fixed finding IDs for layouts named 'title_bar' (#103)</li>
     <li>Updated test-app</li>
   </ul>
 
