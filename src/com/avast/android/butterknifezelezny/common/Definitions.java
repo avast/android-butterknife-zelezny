@@ -13,6 +13,8 @@ public class Definitions {
         paths.put("WebView", "android.webkit.WebView");
         paths.put("View", "android.view.View");
         paths.put("ViewStub", "android.view.ViewStub");
+        paths.put("SurfaceView", "android.view.SurfaceView");
+        paths.put("TextureView", "android.view.TextureView");
 
         // adapters
         adapters.add("android.widget.ListAdapter");
