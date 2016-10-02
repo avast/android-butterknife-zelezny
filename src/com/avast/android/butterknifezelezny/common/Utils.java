@@ -290,7 +290,7 @@ public class Utils {
     }
 
     public static String getAccessLevel() {
-        return PropertiesComponent.getInstance().getValue(Settings.ACCESS_LEVEL, "protected");
+        return PropertiesComponent.getInstance().getValue(Settings.ACCESS_LEVEL, "");
     }
 
     /**
