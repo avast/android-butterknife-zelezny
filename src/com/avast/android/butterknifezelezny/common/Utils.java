@@ -289,6 +289,10 @@ public class Utils {
         return PropertiesComponent.getInstance().getValue(Settings.VIEWHOLDER_CLASS_NAME, "ViewHolder");
     }
 
+    public static String getAccessLevel() {
+        return PropertiesComponent.getInstance().getValue(Settings.ACCESS_LEVEL, "protected");
+    }
+
     /**
      * Parse ID of injected element (eg. R.id.text)
      *

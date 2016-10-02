@@ -18,10 +18,12 @@ public class Settings implements Configurable {
 
     public static final String PREFIX = "butterknifezelezny_prefix";
     public static final String VIEWHOLDER_CLASS_NAME = "butterknifezelezny_viewholder_class_name";
+    public static final String ACCESS_LEVEL = "butterknifezelezny_access_level";
 
     private JPanel mPanel;
     private JTextField mHolderName;
     private JTextField mPrefix;
+    private JTextField mAccessLevel;
 
     @Nls
     @Override
@@ -51,12 +53,14 @@ public class Settings implements Configurable {
     public void apply() throws ConfigurationException {
         PropertiesComponent.getInstance().setValue(PREFIX, mPrefix.getText());
         PropertiesComponent.getInstance().setValue(VIEWHOLDER_CLASS_NAME, mHolderName.getText());
+        PropertiesComponent.getInstance().setValue(ACCESS_LEVEL, mAccessLevel.getText());
     }
 
     @Override
     public void reset() {
         mPrefix.setText(Utils.getPrefix());
         mHolderName.setText(Utils.getViewHolderClassName());
+        mAccessLevel.setText(Utils.getAccessLevel());
     }
 
     @Override

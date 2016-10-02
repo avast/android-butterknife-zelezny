@@ -173,6 +173,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
      * Create fields for injections inside main class
      */
     protected void generateFields(@NotNull IButterKnife butterKnife) {
+        String accessLevel = Utils.getAccessLevel();
         // add injections into main class
         for (Element element : mElements) {
             if (!element.used) {
@@ -185,6 +186,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
             injection.append('(');
             injection.append(element.getFullID());
             injection.append(") ");
+            if(!accessLevel.equals("")) injection.append(accessLevel).append(" ");
             if (element.nameFull != null && element.nameFull.length() > 0) { // custom package+class
                 injection.append(element.nameFull);
             } else if (Definitions.paths.containsKey(element.name)) { // listed class
