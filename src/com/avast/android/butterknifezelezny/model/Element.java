@@ -20,7 +20,7 @@ public class Element {
     public boolean used = true;
     public boolean isClick = true;
 
-    public Element(String name, String id) {
+    public Element(String name, String id, boolean isOriginName) {
         // id
         final Matcher matcher = sIdPattern.matcher(id);
         if (matcher.find() && matcher.groupCount() > 0) {
@@ -39,8 +39,7 @@ public class Element {
             this.nameFull = null;
             this.name = name;
         }
-
-        this.fieldName = getFieldName();
+        this.fieldName = getFieldName(isOriginName);
     }
 
     /**
@@ -69,22 +68,25 @@ public class Element {
      *
      * @return
      */
-    private String getFieldName() {
-        String[] words = this.id.split("_");
-        StringBuilder sb = new StringBuilder();
-        sb.append(Utils.getPrefix());
+    private String getFieldName(boolean isOriginName) {
+        if (isOriginName) {
+            return this.id;
+        } else {
+            String[] words = this.id.split("_");
+            StringBuilder sb = new StringBuilder();
+            sb.append(Utils.getPrefix());
 
-        for (int i = 0; i < words.length; i++) {
-            String[] idTokens = words[i].split("\\.");
-            char[] chars = idTokens[idTokens.length - 1].toCharArray();
-            if (i > 0 || !Utils.isEmptyString(Utils.getPrefix())) {
-                chars[0] = Character.toUpperCase(chars[0]);
+            for (int i = 0; i < words.length; i++) {
+                String[] idTokens = words[i].split("\\.");
+                char[] chars = idTokens[idTokens.length - 1].toCharArray();
+                if (i > 0 || !Utils.isEmptyString(Utils.getPrefix())) {
+                    chars[0] = Character.toUpperCase(chars[0]);
+                }
+
+                sb.append(chars);
             }
-
-            sb.append(chars);
+            return sb.toString();
         }
-
-        return sb.toString();
     }
 
     /**
