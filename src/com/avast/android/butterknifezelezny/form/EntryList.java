@@ -2,6 +2,7 @@ package com.avast.android.butterknifezelezny.form;
 
 import com.avast.android.butterknifezelezny.iface.ICancelListener;
 import com.avast.android.butterknifezelezny.iface.IConfirmListener;
+import com.avast.android.butterknifezelezny.iface.IRefreshListener;
 import com.avast.android.butterknifezelezny.iface.OnCheckBoxStateChangedListener;
 import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.openapi.editor.Editor;
@@ -23,14 +24,18 @@ public class EntryList extends JPanel {
     protected ArrayList<String> mGeneratedIDs = new ArrayList<String>();
     protected ArrayList<Entry> mEntries = new ArrayList<Entry>();
     protected boolean mCreateHolder = false;
+    protected boolean mOriginalName = true;
     protected String mPrefix = null;
     protected IConfirmListener mConfirmListener;
     protected ICancelListener mCancelListener;
+    protected IRefreshListener mRefreshListener;
     protected JCheckBox mPrefixCheck;
     protected JTextField mPrefixValue;
     protected JLabel mPrefixLabel;
     protected JCheckBox mHolderCheck;
+    protected JCheckBox mHolderCheck2;
     protected JLabel mHolderLabel;
+    protected JLabel mHolderLabel2;
     protected JButton mConfirm;
     protected JButton mCancel;
     protected EntryHeader mEntryHeader;
@@ -60,12 +65,14 @@ public class EntryList extends JPanel {
         }
     };
 
-    public EntryList(Project project, Editor editor, ArrayList<Element> elements, ArrayList<String> ids, boolean createHolder, IConfirmListener confirmListener, ICancelListener cancelListener) {
+    public EntryList(Project project, Editor editor, ArrayList<Element> elements, ArrayList<String> ids, boolean createHolder,  boolean originalName, IConfirmListener confirmListener, ICancelListener cancelListener, IRefreshListener refreshListener) {
         mProject = project;
         mEditor = editor;
         mCreateHolder = createHolder;
+        mOriginalName = originalName;
         mConfirmListener = confirmListener;
         mCancelListener = cancelListener;
+        mRefreshListener = refreshListener;
         if (elements != null) {
             mElements.addAll(elements);
         }
@@ -147,8 +154,10 @@ public class EntryList extends JPanel {
         mHolderCheck.setSelected(mCreateHolder);
         mHolderCheck.addChangeListener(new CheckHolderListener());
 
+
         mHolderLabel = new JLabel();
         mHolderLabel.setText("Create ViewHolder");
+
 
         JPanel holderPanel = new JPanel();
         holderPanel.setLayout(new BoxLayout(holderPanel, BoxLayout.LINE_AXIS));
@@ -157,6 +166,26 @@ public class EntryList extends JPanel {
         holderPanel.add(mHolderLabel);
         holderPanel.add(Box.createHorizontalGlue());
         add(holderPanel, BorderLayout.PAGE_END);
+
+
+        mHolderCheck2 = new JCheckBox();
+        mHolderCheck2.setPreferredSize(new Dimension(32, 26));
+        mHolderCheck2.setSelected(mOriginalName);
+        mHolderCheck2.addChangeListener(new CheckOriginListener());
+
+
+        mHolderLabel2 = new JLabel();
+        mHolderLabel2.setText("Original Name");
+
+
+        JPanel holderPanel2 = new JPanel();
+        holderPanel2.setLayout(new BoxLayout(holderPanel2, BoxLayout.LINE_AXIS));
+        holderPanel2.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        holderPanel2.add(mHolderCheck2);
+        holderPanel2.add(mHolderLabel2);
+        holderPanel2.add(Box.createHorizontalGlue());
+        add(holderPanel2, BorderLayout.PAGE_END);
+
 
         mCancel = new JButton();
         mCancel.setAction(new CancelAction());
@@ -212,6 +241,14 @@ public class EntryList extends JPanel {
         @Override
         public void stateChanged(ChangeEvent event) {
             mCreateHolder = mHolderCheck.isSelected();
+        }
+    }
+    public class CheckOriginListener implements ChangeListener {
+
+        @Override
+        public void stateChanged(ChangeEvent event) {
+            mOriginalName = mHolderCheck2.isSelected();
+            mRefreshListener.onRefresh(mOriginalName);
         }
     }
 

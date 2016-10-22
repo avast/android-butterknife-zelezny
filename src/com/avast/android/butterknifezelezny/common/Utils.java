@@ -148,10 +148,10 @@ public class Utils {
      * @param file
      * @return
      */
-    public static ArrayList<Element> getIDsFromLayout(final PsiFile file) {
+    public static ArrayList<Element> getIDsFromLayout(final PsiFile file,boolean isOriginName) {
         final ArrayList<Element> elements = new ArrayList<Element>();
 
-        return getIDsFromLayout(file, elements);
+        return getIDsFromLayout(file, elements,isOriginName);
     }
 
     /**
@@ -160,7 +160,7 @@ public class Utils {
      * @param file
      * @return
      */
-    public static ArrayList<Element> getIDsFromLayout(final PsiFile file, final ArrayList<Element> elements) {
+    public static ArrayList<Element> getIDsFromLayout(final PsiFile file, final ArrayList<Element> elements, final boolean isOriginName) {
         file.accept(new XmlRecursiveElementVisitor() {
 
             @Override
@@ -178,7 +178,7 @@ public class Utils {
                             PsiFile include = findLayoutResource(file, project, getLayoutName(layout.getValue()));
 
                             if (include != null) {
-                                getIDsFromLayout(include, elements);
+                                getIDsFromLayout(include, elements,isOriginName);
 
                                 return;
                             }
@@ -203,7 +203,7 @@ public class Utils {
                     }
 
                     try {
-                        elements.add(new Element(name, value));
+                        elements.add(new Element(name, value,isOriginName));
                     } catch (IllegalArgumentException e) {
                         // TODO log
                     }

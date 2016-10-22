@@ -7,6 +7,7 @@ import com.avast.android.butterknifezelezny.common.Utils;
 import com.avast.android.butterknifezelezny.form.EntryList;
 import com.avast.android.butterknifezelezny.iface.ICancelListener;
 import com.avast.android.butterknifezelezny.iface.IConfirmListener;
+import com.avast.android.butterknifezelezny.iface.IRefreshListener;
 import com.avast.android.butterknifezelezny.model.Element;
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
@@ -21,11 +22,13 @@ import com.intellij.psi.util.PsiUtilBase;
 import javax.swing.*;
 import java.util.ArrayList;
 
-public class InjectAction extends BaseGenerateAction implements IConfirmListener, ICancelListener {
+public class InjectAction extends BaseGenerateAction implements IConfirmListener, ICancelListener,IRefreshListener {
 
     protected JFrame mDialog;
     protected static final Logger log = Logger.getInstance(InjectAction.class);
-
+    Project mProject;
+    Editor mEditor;
+    boolean mIsOriginName=true;
     @SuppressWarnings("unused")
     public InjectAction() {
         super(null);
@@ -52,10 +55,10 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = event.getData(PlatformDataKeys.PROJECT);
-        Editor editor = event.getData(PlatformDataKeys.EDITOR);
+        mProject = event.getData(PlatformDataKeys.PROJECT);
+        mEditor = event.getData(PlatformDataKeys.EDITOR);
 
-        actionPerformedImpl(project, editor);
+        actionPerformedImpl(mProject, mEditor);
     }
 
     @Override
@@ -70,7 +73,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
         log.info("Layout file: " + layout.getVirtualFile());
 
-        ArrayList<Element> elements = Utils.getIDsFromLayout(layout);
+        ArrayList<Element> elements = Utils.getIDsFromLayout(layout,mIsOriginName);
         if (!elements.isEmpty()) {
             showDialog(project, editor, elements);
         } else {
@@ -140,7 +143,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
             }
         }
 
-        EntryList panel = new EntryList(project, editor, elements, ids, createHolder, this, this);
+        EntryList panel = new EntryList(project, editor, elements, ids, createHolder,mIsOriginName, this, this,this);
 
         mDialog = new JFrame();
         mDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -158,5 +161,12 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
         mDialog.setVisible(false);
         mDialog.dispose();
+    }
+
+    @Override
+    public void onRefresh(boolean isOriginName) {
+        mIsOriginName = !isOriginName;
+        mDialog.dispose();
+        actionPerformedImpl(mProject,mEditor);
     }
 }
