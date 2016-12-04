@@ -70,49 +70,61 @@ public class InjectWriter extends WriteCommandAction.Simple {
 
     protected void generateClick() {
         if (Utils.getClickCount(mElements) == 1) {
-            StringBuilder method = new StringBuilder();
-            method.append("@butterknife.OnClick(");
-            for (Element element : mElements) {
-                if (element.isClick) {
-                    method.append(element.getFullID() + ")");
-                }
-            }
-            method.append("public void onClick() {}");
-            mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+            generateSingleClickMethod();
         } else {
             if (mSplitOnclickMethods) {
-                for (Element element : mElements) {
-                    if (element.isClick) {
-                        StringBuilder method = new StringBuilder();
-                        method.append("@butterknife.OnClick(" + element.getFullID() + ")");
-                        method.append("public void on" + element.fieldName + "Click() {}");
-                        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
-                    }
-                }
+                generateMultipleClickMethods();
             } else {
+                generateSingleClickMethodForSeveralIds();
+            }
+        }
+    }
+
+    private void generateSingleClickMethod() {
+        StringBuilder method = new StringBuilder();
+        method.append("@butterknife.OnClick(");
+        for (Element element : mElements) {
+            if (element.isClick) {
+                method.append(element.getFullID() + ")");
+            }
+        }
+        method.append("public void onClick() {}");
+        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+    }
+
+    private void generateMultipleClickMethods() {
+        for (Element element : mElements) {
+            if (element.isClick) {
                 StringBuilder method = new StringBuilder();
-                method.append("@butterknife.OnClick({");
-                int currentCount = 0;
-                for (Element element : mElements) {
-                    if (element.isClick) {
-                        currentCount++;
-                        if (currentCount == Utils.getClickCount(mElements)) {
-                            method.append(element.getFullID() + "})");
-                        } else {
-                            method.append(element.getFullID() + ",");
-                        }
-                    }
-                }
-                method.append("public void onClick(android.view.View view) {switch (view.getId()){");
-                for (Element element : mElements) {
-                    if (element.isClick) {
-                        method.append("case " + element.getFullID() + ": break;");
-                    }
-                }
-                method.append("}}");
+                method.append("@butterknife.OnClick(" + element.getFullID() + ")");
+                method.append("public void on" + element.fieldName + "Click() {}");
                 mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
             }
         }
+    }
+
+    private void generateSingleClickMethodForSeveralIds() {
+        StringBuilder method = new StringBuilder();
+        method.append("@butterknife.OnClick({");
+        int currentCount = 0;
+        for (Element element : mElements) {
+            if (element.isClick) {
+                currentCount++;
+                if (currentCount == Utils.getClickCount(mElements)) {
+                    method.append(element.getFullID() + "})");
+                } else {
+                    method.append(element.getFullID() + ",");
+                }
+            }
+        }
+        method.append("public void onClick(android.view.View view) {switch (view.getId()){");
+        for (Element element : mElements) {
+            if (element.isClick) {
+                method.append("case " + element.getFullID() + ": break;");
+            }
+        }
+        method.append("}}");
+        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
     }
 
     /**
