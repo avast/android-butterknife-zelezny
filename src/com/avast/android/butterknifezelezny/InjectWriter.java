@@ -25,8 +25,9 @@ public class InjectWriter extends WriteCommandAction.Simple {
     protected String mLayoutFileName;
     protected String mFieldNamePrefix;
     protected boolean mCreateHolder;
+    protected boolean mSplitOnclickMethods;
 
-    public InjectWriter(PsiFile file, PsiClass clazz, String command, ArrayList<Element> elements, String layoutFileName, String fieldNamePrefix, boolean createHolder) {
+    public InjectWriter(PsiFile file, PsiClass clazz, String command, ArrayList<Element> elements, String layoutFileName, String fieldNamePrefix, boolean createHolder, boolean splitOnclickMethods) {
         super(clazz.getProject(), command);
 
         mFile = file;
@@ -37,6 +38,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
         mLayoutFileName = layoutFileName;
         mFieldNamePrefix = fieldNamePrefix;
         mCreateHolder = createHolder;
+        mSplitOnclickMethods = splitOnclickMethods;
     }
 
     @Override
@@ -67,8 +69,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     protected void generateClick() {
-        StringBuilder method = new StringBuilder();
         if (Utils.getClickCount(mElements) == 1) {
+            StringBuilder method = new StringBuilder();
             method.append("@butterknife.OnClick(");
             for (Element element : mElements) {
                 if (element.isClick) {
@@ -76,30 +78,41 @@ public class InjectWriter extends WriteCommandAction.Simple {
                 }
             }
             method.append("public void onClick() {}");
+            mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
         } else {
-            method.append("@butterknife.OnClick({");
-            int currentCount = 0;
-            for (Element element : mElements) {
-                if (element.isClick) {
-                    currentCount++;
-                    if (currentCount == Utils.getClickCount(mElements)) {
-                        method.append(element.getFullID() + "})");
-                    } else {
-                        method.append(element.getFullID() + ",");
+            if (mSplitOnclickMethods) {
+                for (Element element : mElements) {
+                    if (element.isClick) {
+                        StringBuilder method = new StringBuilder();
+                        method.append("@butterknife.OnClick(" + element.getFullID() + ")");
+                        method.append("public void on" + element.fieldName + "Click() {}");
+                        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
                     }
                 }
-            }
-            method.append("public void onClick(android.view.View view) {switch (view.getId()){");
-            for (Element element : mElements) {
-                if (element.isClick) {
-                    method.append("case " + element.getFullID() + ": break;");
+            } else {
+                StringBuilder method = new StringBuilder();
+                method.append("@butterknife.OnClick({");
+                int currentCount = 0;
+                for (Element element : mElements) {
+                    if (element.isClick) {
+                        currentCount++;
+                        if (currentCount == Utils.getClickCount(mElements)) {
+                            method.append(element.getFullID() + "})");
+                        } else {
+                            method.append(element.getFullID() + ",");
+                        }
+                    }
                 }
+                method.append("public void onClick(android.view.View view) {switch (view.getId()){");
+                for (Element element : mElements) {
+                    if (element.isClick) {
+                        method.append("case " + element.getFullID() + ": break;");
+                    }
+                }
+                method.append("}}");
+                mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
             }
-            method.append("}}");
         }
-
-        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
-
     }
 
     /**
