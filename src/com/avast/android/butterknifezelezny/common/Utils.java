@@ -1,8 +1,9 @@
 package com.avast.android.butterknifezelezny.common;
 
-import com.avast.android.butterknifezelezny.Settings;
-import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
-import com.avast.android.butterknifezelezny.model.Element;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.regex.Matcher;
+
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -28,9 +29,9 @@ import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.regex.Matcher;
+import com.avast.android.butterknifezelezny.Settings;
+import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
+import com.avast.android.butterknifezelezny.model.Element;
 
 public class Utils {
 
@@ -170,7 +171,7 @@ public class Utils {
                 super.visitElement(element);
 
                 if (element instanceof XmlTag) {
-                    XmlTag tag = (XmlTag) element;
+                    XmlTag tag = (XmlTag)element;
 
                     if (tag.getName().equalsIgnoreCase("include")) {
                         XmlAttribute layout = tag.getAttribute("layout", null);
@@ -266,10 +267,10 @@ public class Utils {
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
 
         JBPopupFactory.getInstance()
-                .createHtmlTextBalloonBuilder(text, type, null)
-                .setFadeoutTime(7500)
-                .createBalloon()
-                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Balloon.Position.atRight);
+            .createHtmlTextBalloonBuilder(text, type, null)
+            .setFadeoutTime(7500)
+            .createBalloon()
+            .show(RelativePoint.getCenterOf(statusBar.getComponent()), Balloon.Position.atRight);
     }
 
     /**
@@ -289,6 +290,14 @@ public class Utils {
 
     public static String getViewHolderClassName() {
         return PropertiesComponent.getInstance().getValue(Settings.VIEWHOLDER_CLASS_NAME, "ViewHolder");
+    }
+
+    public static boolean isAutoGenerateActivityMethod() {
+        return loadBoolean(Settings.AUTO_GENERATE_ACTIVITY_METHOD, true);
+    }
+
+    public static boolean isAutoGenerateFragmentMethod() {
+        return loadBoolean(Settings.AUTO_GENERATE_FRAGMENT_METHOD, true);
     }
 
     /**
@@ -374,13 +383,13 @@ public class Utils {
      */
     public static boolean isClassAvailableForProject(@NotNull Project project, @NotNull String className) {
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
-                new EverythingGlobalScope(project));
+            new EverythingGlobalScope(project));
         return classInModule != null;
     }
 
     /**
      * Capitalizes a String changing the first character to upper case. No other characters are changed.
-
+     *
      * @param src the String to capitalize, may be null
      * @return the capitalized String, {@code null} if src is null
      * @since 1.6.0
@@ -390,5 +399,14 @@ public class Utils {
             return src;
         }
         return src.substring(0, 1).toUpperCase(Locale.US) + src.substring(1);
+    }
+
+    // IDEA can't save boolean value accurately.
+    public static void saveBoolean(String key, boolean value) {
+        PropertiesComponent.getInstance().setValue(key, String.valueOf(value));
+    }
+
+    public static boolean loadBoolean(String key, boolean defaultValue) {
+        return Boolean.parseBoolean(PropertiesComponent.getInstance().getValue(key, String.valueOf(defaultValue)));
     }
 }

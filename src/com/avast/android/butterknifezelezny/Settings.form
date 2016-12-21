@@ -4,6 +4,10 @@
     <rowspec value="center:d:noGrow"/>
     <rowspec value="top:3dlu:noGrow"/>
     <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
     <colspec value="fill:d:noGrow"/>
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="fill:d:grow"/>
@@ -48,6 +52,28 @@
           <forms defaultalign-horz="false"/>
         </constraints>
         <properties/>
+      </component>
+      <component id="b29ca" class="javax.swing.JCheckBox" binding="mAutoGenerateActivityMethod">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <enabled value="true"/>
+          <hideActionText value="false"/>
+          <selected value="true"/>
+          <text value="Auto generate &quot;onCreate&quot; for Activity"/>
+        </properties>
+      </component>
+      <component id="f80d4" class="javax.swing.JCheckBox" binding="mAutoGenerateFragmentMethod">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Auto generate &quot;onCreateView&quot; and &quot;onDestroyView&quot; for Fragment"/>
+        </properties>
       </component>
     </children>
   </grid>

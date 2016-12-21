@@ -259,6 +259,9 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     private void generateActivityBind(@NotNull IButterKnife butterKnife) {
+        boolean generateForActivity = Utils.isAutoGenerateActivityMethod();
+        if (!generateForActivity) return;
+
         if (mClass.findMethodsByName("onCreate", false).length == 0) {
             // Add an empty stub of onCreate()
             StringBuilder method = new StringBuilder();
@@ -292,6 +295,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     private void generateFragmentBindAndUnbind(@NotNull IButterKnife butterKnife) {
+        boolean generateForFragment = Utils.isAutoGenerateFragmentMethod();
+        if (!generateForFragment) return;
         boolean generateUnbinder = false;
         String unbinderName = null;
         if (butterKnife.isUsingUnbinder()) {

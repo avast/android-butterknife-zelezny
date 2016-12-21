@@ -18,10 +18,14 @@ public class Settings implements Configurable {
 
     public static final String PREFIX = "butterknifezelezny_prefix";
     public static final String VIEWHOLDER_CLASS_NAME = "butterknifezelezny_viewholder_class_name";
+    public static final String AUTO_GENERATE_ACTIVITY_METHOD= "butterknifezelezny_auto_generate_activity_method";
+    public static final String AUTO_GENERATE_FRAGMENT_METHOD = "butterknifezelezny_auto_generate_fragment_method";
 
     private JPanel mPanel;
     private JTextField mHolderName;
     private JTextField mPrefix;
+    private JCheckBox mAutoGenerateActivityMethod;
+    private JCheckBox mAutoGenerateFragmentMethod;
 
     @Nls
     @Override
@@ -51,12 +55,16 @@ public class Settings implements Configurable {
     public void apply() throws ConfigurationException {
         PropertiesComponent.getInstance().setValue(PREFIX, mPrefix.getText());
         PropertiesComponent.getInstance().setValue(VIEWHOLDER_CLASS_NAME, mHolderName.getText());
+        Utils.saveBoolean(AUTO_GENERATE_ACTIVITY_METHOD, mAutoGenerateActivityMethod.isSelected());
+        Utils.saveBoolean(AUTO_GENERATE_FRAGMENT_METHOD, mAutoGenerateFragmentMethod.isSelected());
     }
 
     @Override
     public void reset() {
         mPrefix.setText(Utils.getPrefix());
         mHolderName.setText(Utils.getViewHolderClassName());
+        mAutoGenerateActivityMethod.setSelected(Utils.isAutoGenerateActivityMethod());
+        mAutoGenerateFragmentMethod.setSelected(Utils.isAutoGenerateFragmentMethod());
     }
 
     @Override
