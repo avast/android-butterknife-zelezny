@@ -78,7 +78,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
         }
     }
 
-    public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder) {
+    public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder, boolean splitOnclickMethods) {
         PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
         if (file == null) {
             return;
@@ -89,7 +89,7 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
 
         if (Utils.getInjectCount(elements) > 0 || Utils.getClickCount(elements) > 0) { // generate injections
-            new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder).execute();
+            new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder, splitOnclickMethods).execute();
         } else { // just notify user about no element selected
             Utils.showInfoNotification(project, "No injection was selected");
         }

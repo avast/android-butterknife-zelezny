@@ -30,6 +30,7 @@ public class EntryList extends JPanel {
     protected JTextField mPrefixValue;
     protected JLabel mPrefixLabel;
     protected JCheckBox mHolderCheck;
+    protected JCheckBox msplitOnclickMethodsCheck;
     protected JLabel mHolderLabel;
     protected JButton mConfirm;
     protected JButton mCancel;
@@ -158,6 +159,21 @@ public class EntryList extends JPanel {
         holderPanel.add(Box.createHorizontalGlue());
         add(holderPanel, BorderLayout.PAGE_END);
 
+        msplitOnclickMethodsCheck = new JCheckBox();
+        msplitOnclickMethodsCheck.setPreferredSize(new Dimension(32, 26));
+        msplitOnclickMethodsCheck.setSelected(false);
+
+        final JLabel independentOnclickMethodsLabel = new JLabel();
+        independentOnclickMethodsLabel.setText("Split OnClick methods");
+
+        final JPanel splitOnclickMethodsPanel = new JPanel();
+        splitOnclickMethodsPanel.setLayout(new BoxLayout(splitOnclickMethodsPanel, BoxLayout.LINE_AXIS));
+        splitOnclickMethodsPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        splitOnclickMethodsPanel.add(msplitOnclickMethodsCheck);
+        splitOnclickMethodsPanel.add(independentOnclickMethodsLabel);
+        splitOnclickMethodsPanel.add(Box.createHorizontalGlue());
+        add(splitOnclickMethodsPanel, BorderLayout.PAGE_END);
+
         mCancel = new JButton();
         mCancel.setAction(new CancelAction());
         mCancel.setPreferredSize(new Dimension(120, 26));
@@ -240,7 +256,7 @@ public class EntryList extends JPanel {
 
             if (valid) {
                 if (mConfirmListener != null) {
-                    mConfirmListener.onConfirm(mProject, mEditor, mElements, mPrefix, mCreateHolder);
+                    mConfirmListener.onConfirm(mProject, mEditor, mElements, mPrefix, mCreateHolder, msplitOnclickMethodsCheck.isSelected());
                 }
             }
         }
