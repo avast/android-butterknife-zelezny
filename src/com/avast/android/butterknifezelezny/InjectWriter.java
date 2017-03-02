@@ -88,7 +88,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
                 method.append(element.getFullID() + ")");
             }
         }
-        method.append("public void onClick() {}");
+        method.append("public void onViewClicked() {}");
         mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
     }
 
@@ -97,7 +97,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
             if (element.isClick) {
                 StringBuilder method = new StringBuilder();
                 method.append("@butterknife.OnClick(" + element.getFullID() + ")");
-                method.append("public void on" + element.fieldName + "Click() {}");
+                method.append("public void on" + Utils.capitalize(element.fieldName) + "Clicked() {}");
                 mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
             }
         }
@@ -117,7 +117,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
                 }
             }
         }
-        method.append("public void onClick(android.view.View view) {switch (view.getId()){");
+        method.append("public void onViewClicked(android.view.View view) {switch (view.getId()){");
         for (Element element : mElements) {
             if (element.isClick) {
                 method.append("case " + element.getFullID() + ": break;");

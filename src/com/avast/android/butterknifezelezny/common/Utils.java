@@ -26,8 +26,10 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class Utils {
@@ -374,5 +376,19 @@ public class Utils {
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
                 new EverythingGlobalScope(project));
         return classInModule != null;
+    }
+
+    /**
+     * Capitalizes a String changing the first character to upper case. No other characters are changed.
+
+     * @param src the String to capitalize, may be null
+     * @return the capitalized String, {@code null} if src is null
+     * @since 1.6.0
+     */
+    public static String capitalize(@Nullable String src) {
+        if (src == null) {
+            return src;
+        }
+        return src.substring(0, 1).toUpperCase(Locale.US) + src.substring(1);
     }
 }

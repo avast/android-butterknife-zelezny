@@ -16,6 +16,7 @@
     <li>Added support for Unbinder in ButterKnife 8 (#97)</li>
     <li>Fixed finding IDs for layouts named 'title_bar' (#103)</li>
     <li>Updated test-app</li>
+    <li>Added support for separate OnClick methods</li>
   </ul>
 
   <b>1.5.0</b> (5/2/2016)
