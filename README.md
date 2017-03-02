@@ -33,7 +33,7 @@ Pull requests are welcomed!
 ## Common issue: The plugin is not working after I updated to new Android Studio
 - AS promts you to update plugins after update, you need to update them before using
 - Make sure you have Butterknife on your classpath
-- Make sure that your cursor is on layout file in Activity on Fragment
+- Make sure that your cursor is on layout file in Activity or Fragment
 
 ## Why 'Zelezny'?
 
