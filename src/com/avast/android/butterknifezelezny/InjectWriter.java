@@ -268,7 +268,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     private void generateActivityBind(@NotNull IButterKnife butterKnife) {
-        if (mClass.findMethodsByName("onCreate", false).length == 0) {
+        PsiMethod[] onCreateMethods = mClass.findMethodsByName("onCreate", true);
+        if (onCreateMethods.length == 1) { // only AOSP implementation found
             // Add an empty stub of onCreate()
             StringBuilder method = new StringBuilder();
             method.append("@Override protected void onCreate(android.os.Bundle savedInstanceState) {\n");
@@ -280,19 +281,33 @@ public class InjectWriter extends WriteCommandAction.Simple {
 
             mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
         } else {
-            PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
-            if (!containsButterKnifeInjectLine(onCreate, butterKnife.getSimpleBindStatement())) {
-                for (PsiStatement statement : onCreate.getBody().getStatements()) {
-                    // Search for setContentView()
-                    if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
-                        PsiReferenceExpression methodExpression
-                            = ((PsiMethodCallExpression) statement.getFirstChild())
-                            .getMethodExpression();
-                        // Insert ButterKnife.inject()/ButterKnife.bind() after setContentView()
-                        if (methodExpression.getText().equals("setContentView")) {
-                            onCreate.getBody().addAfter(mFactory.createStatementFromText(
-                                butterKnife.getCanonicalBindStatement() + "(this);", mClass), statement);
-                            break;
+            if (!containsButterKnifeInjectLine(onCreateMethods, butterKnife.getSimpleBindStatement())) {
+                PsiMethod[] onCreateMethodsWithoutBaseClass = mClass.findMethodsByName("onCreate", false);
+                if (onCreateMethodsWithoutBaseClass.length == 0) { // No method found in current file
+                    // Add an empty stub of onCreate()
+                    StringBuilder method = new StringBuilder();
+                    method.append("@Override protected void onCreate(android.os.Bundle savedInstanceState) {\n");
+                    method.append("super.onCreate(savedInstanceState);\n");
+                    method.append("\t// TODO: add setContentView(...) invocation\n");
+                    method.append(butterKnife.getCanonicalBindStatement());
+                    method.append("(this);\n");
+                    method.append("}");
+
+                    mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+                } else {
+                    PsiMethod onCreate = onCreateMethodsWithoutBaseClass[0];
+                    for (PsiStatement statement : onCreate.getBody().getStatements()) {
+                        // Search for setContentView()
+                        if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
+                            PsiReferenceExpression methodExpression
+                                    = ((PsiMethodCallExpression) statement.getFirstChild())
+                                    .getMethodExpression();
+                            // Insert ButterKnife.inject()/ButterKnife.bind() after setContentView()
+                            if (methodExpression.getText().equals("setContentView")) {
+                                onCreate.getBody().addAfter(mFactory.createStatementFromText(
+                                        butterKnife.getCanonicalBindStatement() + "(this);", mClass), statement);
+                                break;
+                            }
                         }
                     }
                 }
