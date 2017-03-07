@@ -301,14 +301,13 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     private void generateFragmentBindAndUnbind(@NotNull IButterKnife butterKnife) {
-        boolean generateUnbinder = false;
         String unbinderName = null;
         if (butterKnife.isUsingUnbinder()) {
             unbinderName = getNameForUnbinder(butterKnife);
         }
 
-        // onCreateView() doesn't exist, let's create it
-        if (mClass.findMethodsByName("onCreateView", false).length == 0) {
+        PsiMethod[] onCreateViewMethods = mClass.findMethodsByName("onCreateView", true);
+        if (onCreateViewMethods.length == 1) { // only AOSP implementation found
             // Add an empty stub of onCreateView()
             StringBuilder method = new StringBuilder();
             method.append("@Override public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {\n");
@@ -325,40 +324,61 @@ public class InjectWriter extends WriteCommandAction.Simple {
 
             mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
         } else {
-            // onCreateView() exists, let's update it with an inject/bind statement
-            PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
-            if (!containsButterKnifeInjectLine(onCreateView, butterKnife.getSimpleBindStatement())) {
-                for (PsiStatement statement : onCreateView.getBody().getStatements()) {
-                    if (statement instanceof PsiReturnStatement) {
-                        String returnValue = ((PsiReturnStatement) statement).getReturnValue().getText();
-                        // there's layout inflatiion
-                        if (returnValue.contains("R.layout")) {
-                            onCreateView.getBody().addBefore(mFactory.createStatementFromText("android.view.View view = " + returnValue + ";", mClass), statement);
-                            StringBuilder bindText = new StringBuilder();
-                            if (butterKnife.isUsingUnbinder()) {
-                                bindText.append(unbinderName);
-                                bindText.append(" = ");
+            if (!containsButterKnifeInjectLine(onCreateViewMethods, butterKnife.getSimpleBindStatement())) {
+                PsiMethod[] onCreateViewMethodsWithoutBaseClass = mClass.findMethodsByName("onCreateView", false);
+                if (onCreateViewMethodsWithoutBaseClass.length == 0) { // No method found in current file
+                    // Add an empty stub of onCreateView()
+                    StringBuilder method = new StringBuilder();
+                    method.append("@Override public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {\n");
+                    method.append("\t// TODO: inflate a fragment view\n");
+                    method.append("android.view.View rootView = super.onCreateView(inflater, container, savedInstanceState);\n");
+                    if (butterKnife.isUsingUnbinder()) {
+                        method.append(unbinderName);
+                        method.append(" = ");
+                    }
+                    method.append(butterKnife.getCanonicalBindStatement());
+                    method.append("(this, rootView);\n");
+                    method.append("return rootView;\n");
+                    method.append("}");
+
+                    mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+                } else {
+                    // onCreateView() exists, let's update it with an inject/bind statement
+                    PsiMethod onCreateView = onCreateViewMethodsWithoutBaseClass[0];
+                    if (!containsButterKnifeInjectLine(onCreateView, butterKnife.getSimpleBindStatement())) {
+                        for (PsiStatement statement : onCreateView.getBody().getStatements()) {
+                            if (statement instanceof PsiReturnStatement) {
+                                String returnValue = ((PsiReturnStatement) statement).getReturnValue().getText();
+                                // there's layout inflation
+                                if (returnValue.contains("R.layout")) {
+                                    onCreateView.getBody().addBefore(mFactory.createStatementFromText("android.view.View view = " + returnValue + ";", mClass), statement);
+                                    StringBuilder bindText = new StringBuilder();
+                                    if (butterKnife.isUsingUnbinder()) {
+                                        bindText.append(unbinderName);
+                                        bindText.append(" = ");
+                                    }
+                                    bindText.append(butterKnife.getCanonicalBindStatement());
+                                    bindText.append("(this, view);");
+                                    PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
+                                    onCreateView.getBody().addBefore(bindStatement, statement);
+                                    statement.replace(mFactory.createStatementFromText("return view;", mClass));
+                                } else {
+                                    // Insert ButterKnife.inject()/ButterKnife.bind() before returning a view for a fragment
+                                    StringBuilder bindText = new StringBuilder();
+                                    if (butterKnife.isUsingUnbinder()) {
+                                        bindText.append(unbinderName);
+                                        bindText.append(" = ");
+                                    }
+                                    bindText.append(butterKnife.getCanonicalBindStatement());
+                                    bindText.append("(this, ");
+                                    bindText.append(returnValue);
+                                    bindText.append(");");
+                                    PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
+                                    onCreateView.getBody().addBefore(bindStatement, statement);
+                                }
+                                break;
                             }
-                            bindText.append(butterKnife.getCanonicalBindStatement());
-                            bindText.append("(this, view);");
-                            PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
-                            onCreateView.getBody().addBefore(bindStatement, statement);
-                            statement.replace(mFactory.createStatementFromText("return view;", mClass));
-                        } else {
-                            // Insert ButterKnife.inject()/ButterKnife.bind() before returning a view for a fragment
-                            StringBuilder bindText = new StringBuilder();
-                            if (butterKnife.isUsingUnbinder()) {
-                                bindText.append(unbinderName);
-                                bindText.append(" = ");
-                            }
-                            bindText.append(butterKnife.getCanonicalBindStatement());
-                            bindText.append("(this, ");
-                            bindText.append(returnValue);
-                            bindText.append(");");
-                            PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
-                            onCreateView.getBody().addBefore(bindStatement, statement);
                         }
-                        break;
                     }
                 }
             }
