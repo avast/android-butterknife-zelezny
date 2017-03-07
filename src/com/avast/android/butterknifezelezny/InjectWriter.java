@@ -241,6 +241,15 @@ public class InjectWriter extends WriteCommandAction.Simple {
         return false;
     }
 
+    private boolean containsButterKnifeInjectLine(PsiMethod[] methods, String line) {
+        for (PsiMethod method : methods) {
+            if (containsButterKnifeInjectLine(method, line)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void generateInjects(@NotNull IButterKnife butterKnife) {
         PsiClass activityClass = JavaPsiFacade.getInstance(mProject).findClass(
                 "android.app.Activity", new EverythingGlobalScope(mProject));
@@ -357,8 +366,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
 
         // Insert ButterKnife.reset(this)/ButterKnife.unbind(this)/unbinder.unbind()
         if (butterKnife.isUnbindSupported()) {
-            // Create onDestroyView method if it's missing
-            if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
+            PsiMethod[] onDestroyViewsMethods = mClass.findMethodsByName("onDestroyView", true);
+            if (onDestroyViewsMethods.length == 1) { // only AOSP implementation found
                 StringBuilder method = new StringBuilder();
                 method.append("@Override public void onDestroyView() {\n");
                 method.append("super.onDestroyView();\n");
@@ -367,12 +376,22 @@ public class InjectWriter extends WriteCommandAction.Simple {
 
                 mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
             } else {
-                // there's already onDestroyView(), let's add the unbind statement
-                PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
-                if (!containsButterKnifeInjectLine(onDestroyView, butterKnife.getSimpleUnbindStatement())) {
-                    StringBuilder unbindText = generateUnbindStatement(butterKnife, unbinderName, false);
-                    final PsiStatement unbindStatement = mFactory.createStatementFromText(unbindText.toString(), mClass);
-                    onDestroyView.getBody().addBefore(unbindStatement, onDestroyView.getBody().getLastBodyElement());
+                if (!containsButterKnifeInjectLine(onDestroyViewsMethods, butterKnife.getSimpleUnbindStatement())) {
+                    PsiMethod[] onDestroyViewMethodsWithoutBaseClass = mClass.findMethodsByName("onDestroyView", false);
+                    if (onDestroyViewMethodsWithoutBaseClass.length == 0) { // No method found in current file
+                        StringBuilder method = new StringBuilder();
+                        method.append("@Override public void onDestroyView() {\n");
+                        method.append("super.onDestroyView();\n");
+                        method.append(generateUnbindStatement(butterKnife, unbinderName, true));
+                        method.append("}");
+
+                        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+                    } else { // there's already onDestroyView(), let's add the unbind statement
+                        PsiMethod onDestroyView = onDestroyViewsMethods[0];
+                        StringBuilder unbindText = generateUnbindStatement(butterKnife, unbinderName, false);
+                        final PsiStatement unbindStatement = mFactory.createStatementFromText(unbindText.toString(), mClass);
+                        onDestroyView.getBody().addBefore(unbindStatement, onDestroyView.getBody().getLastBodyElement());
+                    }
                 }
             }
         }
