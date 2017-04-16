@@ -294,6 +294,9 @@ public class InjectWriter extends WriteCommandAction.Simple {
     private void generateFragmentBindAndUnbind(@NotNull IButterKnife butterKnife) {
         boolean generateUnbinder = false;
         String unbinderName = null;
+        if (butterKnife.isUsingUnbinder()) {
+            unbinderName = getNameForUnbinder(butterKnife);
+        }
 
         // onCreateView() doesn't exist, let's create it
         if (mClass.findMethodsByName("onCreateView", false).length == 0) {
@@ -303,9 +306,6 @@ public class InjectWriter extends WriteCommandAction.Simple {
             method.append("\t// TODO: inflate a fragment view\n");
             method.append("android.view.View rootView = super.onCreateView(inflater, container, savedInstanceState);\n");
             if (butterKnife.isUsingUnbinder()) {
-                // generate new unbinder
-                generateUnbinder = true;
-                unbinderName = getNameForUnbinder(butterKnife);
                 method.append(unbinderName);
                 method.append(" = ");
             }
@@ -327,9 +327,6 @@ public class InjectWriter extends WriteCommandAction.Simple {
                             onCreateView.getBody().addBefore(mFactory.createStatementFromText("android.view.View view = " + returnValue + ";", mClass), statement);
                             StringBuilder bindText = new StringBuilder();
                             if (butterKnife.isUsingUnbinder()) {
-                                // generate new unbinder
-                                generateUnbinder = true;
-                                unbinderName = getNameForUnbinder(butterKnife);
                                 bindText.append(unbinderName);
                                 bindText.append(" = ");
                             }
@@ -342,9 +339,6 @@ public class InjectWriter extends WriteCommandAction.Simple {
                             // Insert ButterKnife.inject()/ButterKnife.bind() before returning a view for a fragment
                             StringBuilder bindText = new StringBuilder();
                             if (butterKnife.isUsingUnbinder()) {
-                                // generate new unbinder
-                                generateUnbinder = true;
-                                unbinderName = getNameForUnbinder(butterKnife);
                                 bindText.append(unbinderName);
                                 bindText.append(" = ");
                             }
@@ -384,7 +378,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
         }
 
         // create unbinder field if necessary
-        if (generateUnbinder) {
+        if (butterKnife.isUsingUnbinder() && (mClass.findFieldByName(unbinderName, false) == null)) {
             String unbinderFieldText = butterKnife.getUnbinderClassCanonicalName() + " " + unbinderName + ";";
             mClass.add(mFactory.createFieldFromText(unbinderFieldText, mClass));
         }
@@ -417,6 +411,13 @@ public class InjectWriter extends WriteCommandAction.Simple {
      * @return Name for the unbinder variable.
      */
     private String getNameForUnbinder(@NotNull IButterKnife butterKnife) {
+        // first, look for existing unbinder
+        for (PsiField field : mClass.getFields()) {
+            if (field.getType().getCanonicalText().equals(butterKnife.getUnbinderClassCanonicalName())) {
+                return field.getNameIdentifier().getText();
+            }
+        }
+        // find available name for unbinder field
         String unbinderName = "unbinder";
         int idx = 1;
         while (mClass.findFieldByName(unbinderName, false) != null) {
