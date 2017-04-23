@@ -241,6 +241,15 @@ public class InjectWriter extends WriteCommandAction.Simple {
         return false;
     }
 
+    private boolean containsButterKnifeInjectLine(PsiMethod[] methods, String line) {
+        for (PsiMethod method : methods) {
+            if (containsButterKnifeInjectLine(method, line)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void generateInjects(@NotNull IButterKnife butterKnife) {
         PsiClass activityClass = JavaPsiFacade.getInstance(mProject).findClass(
                 "android.app.Activity", new EverythingGlobalScope(mProject));
@@ -259,120 +268,54 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     private void generateActivityBind(@NotNull IButterKnife butterKnife) {
-        if (mClass.findMethodsByName("onCreate", false).length == 0) {
-            // Add an empty stub of onCreate()
-            StringBuilder method = new StringBuilder();
-            method.append("@Override protected void onCreate(android.os.Bundle savedInstanceState) {\n");
-            method.append("super.onCreate(savedInstanceState);\n");
-            method.append("\t// TODO: add setContentView(...) invocation\n");
-            method.append(butterKnife.getCanonicalBindStatement());
-            method.append("(this);\n");
-            method.append("}");
-
-            mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+        PsiMethod[] onCreateMethods = mClass.findMethodsByName("onCreate", true);
+        if (onCreateMethods.length == 1) { // only AOSP implementation found
+            createOncreateWithBind(butterKnife);
         } else {
-            PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
-            if (!containsButterKnifeInjectLine(onCreate, butterKnife.getSimpleBindStatement())) {
-                for (PsiStatement statement : onCreate.getBody().getStatements()) {
-                    // Search for setContentView()
-                    if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
-                        PsiReferenceExpression methodExpression
-                            = ((PsiMethodCallExpression) statement.getFirstChild())
-                            .getMethodExpression();
-                        // Insert ButterKnife.inject()/ButterKnife.bind() after setContentView()
-                        if (methodExpression.getText().equals("setContentView")) {
-                            onCreate.getBody().addAfter(mFactory.createStatementFromText(
-                                butterKnife.getCanonicalBindStatement() + "(this);", mClass), statement);
-                            break;
-                        }
-                    }
+            if (!containsButterKnifeInjectLine(onCreateMethods, butterKnife.getSimpleBindStatement())) {
+                PsiMethod[] onCreateMethodsWithoutBaseClass = mClass.findMethodsByName("onCreate", false);
+                if (onCreateMethodsWithoutBaseClass.length == 0) { // No method found in current file
+                    createOncreateWithBind(butterKnife);
+                } else {
+                    addBindToOncreate(butterKnife, onCreateMethodsWithoutBaseClass[0]);
                 }
             }
         }
     }
 
     private void generateFragmentBindAndUnbind(@NotNull IButterKnife butterKnife) {
-        boolean generateUnbinder = false;
         String unbinderName = null;
         if (butterKnife.isUsingUnbinder()) {
             unbinderName = getNameForUnbinder(butterKnife);
         }
 
-        // onCreateView() doesn't exist, let's create it
-        if (mClass.findMethodsByName("onCreateView", false).length == 0) {
-            // Add an empty stub of onCreateView()
-            StringBuilder method = new StringBuilder();
-            method.append("@Override public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {\n");
-            method.append("\t// TODO: inflate a fragment view\n");
-            method.append("android.view.View rootView = super.onCreateView(inflater, container, savedInstanceState);\n");
-            if (butterKnife.isUsingUnbinder()) {
-                method.append(unbinderName);
-                method.append(" = ");
-            }
-            method.append(butterKnife.getCanonicalBindStatement());
-            method.append("(this, rootView);\n");
-            method.append("return rootView;\n");
-            method.append("}");
-
-            mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+        PsiMethod[] onCreateViewMethods = mClass.findMethodsByName("onCreateView", true);
+        if (onCreateViewMethods.length == 1) { // only AOSP implementation found
+            createOncreateviewWithBind(butterKnife, unbinderName);
         } else {
-            // onCreateView() exists, let's update it with an inject/bind statement
-            PsiMethod onCreateView = mClass.findMethodsByName("onCreateView", false)[0];
-            if (!containsButterKnifeInjectLine(onCreateView, butterKnife.getSimpleBindStatement())) {
-                for (PsiStatement statement : onCreateView.getBody().getStatements()) {
-                    if (statement instanceof PsiReturnStatement) {
-                        String returnValue = ((PsiReturnStatement) statement).getReturnValue().getText();
-                        // there's layout inflatiion
-                        if (returnValue.contains("R.layout")) {
-                            onCreateView.getBody().addBefore(mFactory.createStatementFromText("android.view.View view = " + returnValue + ";", mClass), statement);
-                            StringBuilder bindText = new StringBuilder();
-                            if (butterKnife.isUsingUnbinder()) {
-                                bindText.append(unbinderName);
-                                bindText.append(" = ");
-                            }
-                            bindText.append(butterKnife.getCanonicalBindStatement());
-                            bindText.append("(this, view);");
-                            PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
-                            onCreateView.getBody().addBefore(bindStatement, statement);
-                            statement.replace(mFactory.createStatementFromText("return view;", mClass));
-                        } else {
-                            // Insert ButterKnife.inject()/ButterKnife.bind() before returning a view for a fragment
-                            StringBuilder bindText = new StringBuilder();
-                            if (butterKnife.isUsingUnbinder()) {
-                                bindText.append(unbinderName);
-                                bindText.append(" = ");
-                            }
-                            bindText.append(butterKnife.getCanonicalBindStatement());
-                            bindText.append("(this, ");
-                            bindText.append(returnValue);
-                            bindText.append(");");
-                            PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
-                            onCreateView.getBody().addBefore(bindStatement, statement);
-                        }
-                        break;
-                    }
+            if (!containsButterKnifeInjectLine(onCreateViewMethods, butterKnife.getSimpleBindStatement())) {
+                PsiMethod[] onCreateViewMethodsWithoutBaseClass = mClass.findMethodsByName("onCreateView", false);
+                if (onCreateViewMethodsWithoutBaseClass.length == 0) { // No method found in current file
+                    createOncreateviewWithBind(butterKnife, unbinderName);
+                } else {
+                    addBindToOncreateview(butterKnife, unbinderName, onCreateViewMethodsWithoutBaseClass[0]);
                 }
             }
         }
 
         // Insert ButterKnife.reset(this)/ButterKnife.unbind(this)/unbinder.unbind()
         if (butterKnife.isUnbindSupported()) {
-            // Create onDestroyView method if it's missing
-            if (mClass.findMethodsByName("onDestroyView", false).length == 0) {
-                StringBuilder method = new StringBuilder();
-                method.append("@Override public void onDestroyView() {\n");
-                method.append("super.onDestroyView();\n");
-                method.append(generateUnbindStatement(butterKnife, unbinderName, true));
-                method.append("}");
-
-                mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+            PsiMethod[] onDestroyViewsMethods = mClass.findMethodsByName("onDestroyView", true);
+            if (onDestroyViewsMethods.length == 1) { // only AOSP implementation found
+                createOndestroyviewWithUnbind(butterKnife, unbinderName);
             } else {
-                // there's already onDestroyView(), let's add the unbind statement
-                PsiMethod onDestroyView = mClass.findMethodsByName("onDestroyView", false)[0];
-                if (!containsButterKnifeInjectLine(onDestroyView, butterKnife.getSimpleUnbindStatement())) {
-                    StringBuilder unbindText = generateUnbindStatement(butterKnife, unbinderName, false);
-                    final PsiStatement unbindStatement = mFactory.createStatementFromText(unbindText.toString(), mClass);
-                    onDestroyView.getBody().addBefore(unbindStatement, onDestroyView.getBody().getLastBodyElement());
+                if (!containsButterKnifeInjectLine(onDestroyViewsMethods, butterKnife.getSimpleUnbindStatement())) {
+                    PsiMethod[] onDestroyViewMethodsWithoutBaseClass = mClass.findMethodsByName("onDestroyView", false);
+                    if (onDestroyViewMethodsWithoutBaseClass.length == 0) { // No method found in current file
+                        createOndestroyviewWithUnbind(butterKnife, unbinderName);
+                    } else {
+                        addUnbindToOndestroyview(butterKnife, unbinderName, onDestroyViewsMethods[0]);
+                    }
                 }
             }
         }
@@ -382,6 +325,105 @@ public class InjectWriter extends WriteCommandAction.Simple {
             String unbinderFieldText = butterKnife.getUnbinderClassCanonicalName() + " " + unbinderName + ";";
             mClass.add(mFactory.createFieldFromText(unbinderFieldText, mClass));
         }
+    }
+
+    private void createOncreateWithBind(@NotNull IButterKnife butterKnife) {
+        StringBuilder method = new StringBuilder();
+        method.append("@Override protected void onCreate(android.os.Bundle savedInstanceState) {\n");
+        method.append("super.onCreate(savedInstanceState);\n");
+        method.append("\t// TODO: add setContentView(...) invocation\n");
+        method.append(butterKnife.getCanonicalBindStatement());
+        method.append("(this);\n");
+        method.append("}");
+
+        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+    }
+
+    private void addBindToOncreate(@NotNull IButterKnife butterKnife, PsiMethod onCreateMethod) {
+        for (PsiStatement statement : onCreateMethod.getBody().getStatements()) {
+            // Search for setContentView()
+            if (statement.getFirstChild() instanceof PsiMethodCallExpression) {
+                PsiReferenceExpression methodExpression
+                        = ((PsiMethodCallExpression) statement.getFirstChild()).getMethodExpression();
+                // Insert ButterKnife.inject()/ButterKnife.bind() after setContentView()
+                if (methodExpression.getText().equals("setContentView")) {
+                    onCreateMethod.getBody().addAfter(mFactory.createStatementFromText(
+                            butterKnife.getCanonicalBindStatement() + "(this);", mClass), statement);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void createOncreateviewWithBind(@NotNull IButterKnife butterKnife, String unbinderName) {
+        StringBuilder method = new StringBuilder();
+        method.append("@Override public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {\n");
+        method.append("\t// TODO: inflate a fragment view\n");
+        method.append("android.view.View rootView = super.onCreateView(inflater, container, savedInstanceState);\n");
+        if (butterKnife.isUsingUnbinder()) {
+            method.append(unbinderName);
+            method.append(" = ");
+        }
+        method.append(butterKnife.getCanonicalBindStatement());
+        method.append("(this, rootView);\n");
+        method.append("return rootView;\n");
+        method.append("}");
+
+        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+    }
+
+    private void addBindToOncreateview(@NotNull IButterKnife butterKnife, String unbinderName, PsiMethod onCreateView) {
+        if (!containsButterKnifeInjectLine(onCreateView, butterKnife.getSimpleBindStatement())) {
+            for (PsiStatement statement : onCreateView.getBody().getStatements()) {
+                if (statement instanceof PsiReturnStatement) {
+                    String returnValue = ((PsiReturnStatement) statement).getReturnValue().getText();
+                    // there's layout inflation
+                    if (returnValue.contains("R.layout")) {
+                        onCreateView.getBody().addBefore(mFactory.createStatementFromText("android.view.View view = " + returnValue + ";", mClass), statement);
+                        StringBuilder bindText = new StringBuilder();
+                        if (butterKnife.isUsingUnbinder()) {
+                            bindText.append(unbinderName);
+                            bindText.append(" = ");
+                        }
+                        bindText.append(butterKnife.getCanonicalBindStatement());
+                        bindText.append("(this, view);");
+                        PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
+                        onCreateView.getBody().addBefore(bindStatement, statement);
+                        statement.replace(mFactory.createStatementFromText("return view;", mClass));
+                    } else {
+                        // Insert ButterKnife.inject()/ButterKnife.bind() before returning a view for a fragment
+                        StringBuilder bindText = new StringBuilder();
+                        if (butterKnife.isUsingUnbinder()) {
+                            bindText.append(unbinderName);
+                            bindText.append(" = ");
+                        }
+                        bindText.append(butterKnife.getCanonicalBindStatement());
+                        bindText.append("(this, ");
+                        bindText.append(returnValue);
+                        bindText.append(");");
+                        PsiStatement bindStatement = mFactory.createStatementFromText(bindText.toString(), mClass);
+                        onCreateView.getBody().addBefore(bindStatement, statement);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private void createOndestroyviewWithUnbind(@NotNull IButterKnife butterKnife, String unbinderName) {
+        StringBuilder method = new StringBuilder();
+        method.append("@Override public void onDestroyView() {\n");
+        method.append("super.onDestroyView();\n");
+        method.append(generateUnbindStatement(butterKnife, unbinderName, true));
+        method.append("}");
+
+        mClass.add(mFactory.createMethodFromText(method.toString(), mClass));
+    }
+
+    private void addUnbindToOndestroyview(@NotNull IButterKnife butterKnife, String unbinderName, PsiMethod onDestroyView) {
+        StringBuilder unbindText = generateUnbindStatement(butterKnife, unbinderName, false);
+        final PsiStatement unbindStatement = mFactory.createStatementFromText(unbindText.toString(), mClass);
+        onDestroyView.getBody().addBefore(unbindStatement, onDestroyView.getBody().getLastBodyElement());
     }
 
     private static StringBuilder generateUnbindStatement(@NotNull IButterKnife butterKnife, String unbinderName,
