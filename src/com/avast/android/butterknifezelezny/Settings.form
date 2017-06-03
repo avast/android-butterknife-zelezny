@@ -19,7 +19,7 @@
           <forms/>
         </constraints>
         <properties>
-          <text value="Prefix for generated members:"/>
+          <text value="Naming for generated members:"/>
         </properties>
       </component>
       <component id="901" class="javax.swing.JLabel">
@@ -38,7 +38,9 @@
           </grid>
           <forms defaultalign-horz="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <toolTipText value="Use ${ID} for name and ${TYPE} for type"/>
+        </properties>
       </component>
       <component id="52c12" class="javax.swing.JTextField" binding="mHolderName">
         <constraints>
