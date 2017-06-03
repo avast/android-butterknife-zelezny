@@ -71,20 +71,19 @@ public class Element {
      */
     private String getFieldName() {
         String[] words = this.id.split("_");
-        StringBuilder sb = new StringBuilder();
-        sb.append(Utils.getPrefix());
+        StringBuilder nameFromID = new StringBuilder();
 
         for (int i = 0; i < words.length; i++) {
             String[] idTokens = words[i].split("\\.");
             char[] chars = idTokens[idTokens.length - 1].toCharArray();
-            if (i > 0 || !Utils.isEmptyString(Utils.getPrefix())) {
+            if (i > 0 && !Utils.isEmptyString(Utils.getPrefix())) {
                 chars[0] = Character.toUpperCase(chars[0]);
             }
 
-            sb.append(chars);
+            nameFromID.append(chars);
         }
 
-        return sb.toString();
+        return (Utils.isEmptyString(Utils.getPrefix())) ? nameFromID.toString() : Utils.getPrefix().replace("${ID}", nameFromID).replace("${TYPE}", name);
     }
 
     /**
