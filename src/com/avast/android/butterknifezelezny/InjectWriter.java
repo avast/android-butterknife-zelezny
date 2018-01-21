@@ -5,6 +5,7 @@ import com.avast.android.butterknifezelezny.butterknife.IButterKnife;
 import com.avast.android.butterknifezelezny.common.Definitions;
 import com.avast.android.butterknifezelezny.common.Utils;
 import com.avast.android.butterknifezelezny.model.Element;
+
 import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
@@ -26,8 +27,10 @@ public class InjectWriter extends WriteCommandAction.Simple {
     protected String mFieldNamePrefix;
     protected boolean mCreateHolder;
     protected boolean mSplitOnclickMethods;
+    protected boolean mGenerateInjectionMethod;
 
-    public InjectWriter(PsiFile file, PsiClass clazz, String command, ArrayList<Element> elements, String layoutFileName, String fieldNamePrefix, boolean createHolder, boolean splitOnclickMethods) {
+    public InjectWriter(PsiFile file, PsiClass clazz, String command, ArrayList<Element> elements, String
+        layoutFileName, String fieldNamePrefix, boolean createHolder, boolean splitOnclickMethods, boolean generateInjectionMethod) {
         super(clazz.getProject(), command);
 
         mFile = file;
@@ -39,6 +42,8 @@ public class InjectWriter extends WriteCommandAction.Simple {
         mFieldNamePrefix = fieldNamePrefix;
         mCreateHolder = createHolder;
         mSplitOnclickMethods = splitOnclickMethods;
+
+        mGenerateInjectionMethod = generateInjectionMethod;
     }
 
     @Override
@@ -242,6 +247,7 @@ public class InjectWriter extends WriteCommandAction.Simple {
     }
 
     protected void generateInjects(@NotNull IButterKnife butterKnife) {
+        if (!mGenerateInjectionMethod) return;
         PsiClass activityClass = JavaPsiFacade.getInstance(mProject).findClass(
                 "android.app.Activity", new EverythingGlobalScope(mProject));
         PsiClass fragmentClass = JavaPsiFacade.getInstance(mProject).findClass(

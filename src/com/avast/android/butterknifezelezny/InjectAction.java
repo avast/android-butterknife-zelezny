@@ -8,6 +8,7 @@ import com.avast.android.butterknifezelezny.form.EntryList;
 import com.avast.android.butterknifezelezny.iface.ICancelListener;
 import com.avast.android.butterknifezelezny.iface.IConfirmListener;
 import com.avast.android.butterknifezelezny.model.Element;
+
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -16,6 +17,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.util.PsiUtilBase;
 
 import javax.swing.*;
@@ -78,7 +80,8 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
         }
     }
 
-    public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix, boolean createHolder, boolean splitOnclickMethods) {
+    public void onConfirm(Project project, Editor editor, ArrayList<Element> elements, String fieldNamePrefix,
+                          boolean createHolder, boolean splitOnclickMethods, boolean generateInjectionMethod) {
         PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
         if (file == null) {
             return;
@@ -89,7 +92,8 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
 
 
         if (Utils.getInjectCount(elements) > 0 || Utils.getClickCount(elements) > 0) { // generate injections
-            new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(), fieldNamePrefix, createHolder, splitOnclickMethods).execute();
+            new InjectWriter(file, getTargetClass(editor, file), "Generate Injections", elements, layout.getName(),
+                fieldNamePrefix, createHolder, splitOnclickMethods, generateInjectionMethod).execute();
         } else { // just notify user about no element selected
             Utils.showInfoNotification(project, "No injection was selected");
         }
@@ -140,7 +144,23 @@ public class InjectAction extends BaseGenerateAction implements IConfirmListener
             }
         }
 
-        EntryList panel = new EntryList(project, editor, elements, ids, createHolder, this, this);
+        PsiClass activityClass = JavaPsiFacade.getInstance(project).findClass(
+            "android.app.Activity", new EverythingGlobalScope(project));
+        PsiClass fragmentClass = JavaPsiFacade.getInstance(project).findClass(
+            "android.app.Fragment", new EverythingGlobalScope(project));
+        PsiClass supportFragmentClass = JavaPsiFacade.getInstance(project).findClass(
+            "android.support.v4.app.Fragment", new EverythingGlobalScope(project));
+
+        boolean autoGenerate = true;
+        if (activityClass != null && clazz.isInheritor(activityClass, true)) {
+            autoGenerate = Utils.isAutoGenerateActivityMethod();
+        } else if (fragmentClass != null && clazz.isInheritor(fragmentClass, true)) {
+            autoGenerate = Utils.isAutoGenerateFragmentMethod();
+        } else if (supportFragmentClass != null && clazz.isInheritor(supportFragmentClass, true)) {
+            autoGenerate = Utils.isAutoGenerateActivityMethod();
+        }
+
+        EntryList panel = new EntryList(project, editor, elements, ids, createHolder, autoGenerate, this, this);
 
         mDialog = new JFrame();
         mDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

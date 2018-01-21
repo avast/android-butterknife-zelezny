@@ -4,13 +4,12 @@ import com.avast.android.butterknifezelezny.iface.ICancelListener;
 import com.avast.android.butterknifezelezny.iface.IConfirmListener;
 import com.avast.android.butterknifezelezny.iface.OnCheckBoxStateChangedListener;
 import com.avast.android.butterknifezelezny.model.Element;
+
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -22,16 +21,12 @@ public class EntryList extends JPanel {
     protected ArrayList<Element> mElements = new ArrayList<Element>();
     protected ArrayList<String> mGeneratedIDs = new ArrayList<String>();
     protected ArrayList<Entry> mEntries = new ArrayList<Entry>();
-    protected boolean mCreateHolder = false;
+    protected boolean mCreateHolder;
+    protected boolean mSpiltOnClickMethods = false;
+    protected boolean mGenerateInjectionMethod = false;
     protected String mPrefix = null;
     protected IConfirmListener mConfirmListener;
     protected ICancelListener mCancelListener;
-    protected JCheckBox mPrefixCheck;
-    protected JTextField mPrefixValue;
-    protected JLabel mPrefixLabel;
-    protected JCheckBox mHolderCheck;
-    protected JCheckBox msplitOnclickMethodsCheck;
-    protected JLabel mHolderLabel;
     protected JButton mConfirm;
     protected JButton mCancel;
     protected EntryHeader mEntryHeader;
@@ -61,10 +56,13 @@ public class EntryList extends JPanel {
         }
     };
 
-    public EntryList(Project project, Editor editor, ArrayList<Element> elements, ArrayList<String> ids, boolean createHolder, IConfirmListener confirmListener, ICancelListener cancelListener) {
+    public EntryList(Project project, Editor editor, ArrayList<Element> elements, ArrayList<String> ids,
+                     boolean createHolder, boolean autoGenerateInjectionMethod,
+                     IConfirmListener confirmListener, ICancelListener cancelListener) {
         mProject = project;
         mEditor = editor;
         mCreateHolder = createHolder;
+        mGenerateInjectionMethod = autoGenerateInjectionMethod;
         mConfirmListener = confirmListener;
         mCancelListener = cancelListener;
         if (elements != null) {
@@ -122,69 +120,20 @@ public class EntryList extends JPanel {
     }
 
     protected void addButtons() {
-        /*
-		mPrefixCheck = new JCheckBox();
-		mPrefixCheck.setPreferredSize(new Dimension(32, 26));
-		mPrefixCheck.addChangeListener(new CheckPrefixListener());
 
-		mPrefixValue = new JTextField(Utils.getPrefix(), 10);
-		mPrefixValue.setPreferredSize(new Dimension(40, 26));
-
-		mPrefixLabel = new JLabel();
-		mPrefixLabel.setText("Field name prefix");
-
-		JPanel prefixPanel = new JPanel();
-		prefixPanel.setLayout(new BoxLayout(prefixPanel, BoxLayout.LINE_AXIS));
-		prefixPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-		prefixPanel.add(mPrefixCheck);
-		prefixPanel.add(mPrefixValue);
-		prefixPanel.add(mPrefixLabel);
-		prefixPanel.add(Box.createHorizontalGlue());
-		add(prefixPanel, BorderLayout.PAGE_END);
-		*/
-
-        mHolderCheck = new JCheckBox();
-        mHolderCheck.setPreferredSize(new Dimension(32, 26));
-        mHolderCheck.setSelected(mCreateHolder);
-        mHolderCheck.addChangeListener(new CheckHolderListener());
-
-        mHolderLabel = new JLabel();
-        mHolderLabel.setText("Create ViewHolder");
-
-        JPanel holderPanel = new JPanel();
-        holderPanel.setLayout(new BoxLayout(holderPanel, BoxLayout.LINE_AXIS));
-        holderPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-        holderPanel.add(mHolderCheck);
-        holderPanel.add(mHolderLabel);
-        holderPanel.add(Box.createHorizontalGlue());
+        JPanel holderPanel = createCheckBoxItemPanel("Create ViewHolder", mCreateHolder, selected -> mCreateHolder = selected);
         add(holderPanel, BorderLayout.PAGE_END);
 
-        msplitOnclickMethodsCheck = new JCheckBox();
-        msplitOnclickMethodsCheck.setPreferredSize(new Dimension(32, 26));
-        msplitOnclickMethodsCheck.setSelected(false);
-
-        final JLabel independentOnclickMethodsLabel = new JLabel();
-        independentOnclickMethodsLabel.setText("Split OnClick methods");
-
-        final JPanel splitOnclickMethodsPanel = new JPanel();
-        splitOnclickMethodsPanel.setLayout(new BoxLayout(splitOnclickMethodsPanel, BoxLayout.LINE_AXIS));
-        splitOnclickMethodsPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-        splitOnclickMethodsPanel.add(msplitOnclickMethodsCheck);
-        splitOnclickMethodsPanel.add(independentOnclickMethodsLabel);
-        splitOnclickMethodsPanel.add(Box.createHorizontalGlue());
+        JPanel splitOnclickMethodsPanel = createCheckBoxItemPanel("Split OnClick methods", false,
+            selected -> mSpiltOnClickMethods = selected);
         add(splitOnclickMethodsPanel, BorderLayout.PAGE_END);
 
-        mCancel = new JButton();
-        mCancel.setAction(new CancelAction());
-        mCancel.setPreferredSize(new Dimension(120, 26));
-        mCancel.setText("Cancel");
-        mCancel.setVisible(true);
+        JPanel generateInjectionMethod = createCheckBoxItemPanel("Auto generate injection method", mGenerateInjectionMethod,
+            selected -> mGenerateInjectionMethod = selected);
+        add(generateInjectionMethod, BorderLayout.PAGE_END);
 
-        mConfirm = new JButton();
-        mConfirm.setAction(new ConfirmAction());
-        mConfirm.setPreferredSize(new Dimension(120, 26));
-        mConfirm.setText("Confirm");
-        mConfirm.setVisible(true);
+        mCancel = createButton("Cancel", new CancelAction());
+        mConfirm = createButton("Confirm", new ConfirmAction());
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
@@ -197,6 +146,37 @@ public class EntryList extends JPanel {
         add(buttonPanel, BorderLayout.PAGE_END);
         refresh();
     }
+
+    private JPanel createCheckBoxItemPanel(String text, boolean checked, CheckBoxSelectChangeListener listener) {
+        JCheckBox checkBox = new JCheckBox();
+        checkBox.setPreferredSize(new Dimension(32, 26));
+        checkBox.setSelected(checked);
+        checkBox.addChangeListener(e -> {
+            boolean selected = ((JCheckBox)e.getSource()).isSelected();
+            if (listener != null) listener.onSelectChanged(selected);
+        });
+
+
+        JLabel label = new JLabel(text);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        panel.add(checkBox);
+        panel.add(label);
+        panel.add(Box.createHorizontalGlue());
+        return panel;
+    }
+
+    private JButton createButton(String text, AbstractAction action) {
+        JButton button = new JButton();
+        button.setAction(action);
+        button.setPreferredSize(new Dimension(120, 26));
+        button.setText(text);
+        button.setVisible(true);
+        return button;
+    }
+
 
     protected void refresh() {
         revalidate();
@@ -223,26 +203,8 @@ public class EntryList extends JPanel {
     }
     // classes
 
-    public class CheckHolderListener implements ChangeListener {
-
-        @Override
-        public void stateChanged(ChangeEvent event) {
-            mCreateHolder = mHolderCheck.isSelected();
-        }
-    }
-
-    public class CheckPrefixListener implements ChangeListener {
-
-        @Override
-        public void stateChanged(ChangeEvent event) {
-            mPrefixValue.setEnabled(mPrefixCheck.isSelected());
-
-            if (mPrefixCheck.isSelected() && mPrefixValue.getText().length() > 0) {
-                mPrefix = mPrefixValue.getText();
-            } else {
-                mPrefix = null;
-            }
-        }
+    public interface CheckBoxSelectChangeListener {
+        void onSelectChanged(boolean selected);
     }
 
     protected class ConfirmAction extends AbstractAction {
@@ -256,7 +218,8 @@ public class EntryList extends JPanel {
 
             if (valid) {
                 if (mConfirmListener != null) {
-                    mConfirmListener.onConfirm(mProject, mEditor, mElements, mPrefix, mCreateHolder, msplitOnclickMethodsCheck.isSelected());
+                    mConfirmListener.onConfirm(mProject, mEditor, mElements, mPrefix, mCreateHolder,
+                        mSpiltOnClickMethods, mGenerateInjectionMethod);
                 }
             }
         }
