@@ -33,6 +33,7 @@ Pull requests are welcomed!
 - AS promts you to update plugins after update, you need to update them before using
 - Make sure you have Butterknife on your classpath
 - Make sure that your cursor is placed on a layout ID in a class having one of these types: Activity, Fragment, custom View or Adapter 
+- Invalidate caches and restart on file menu
 
 ## Why 'Zelezny'?
 
